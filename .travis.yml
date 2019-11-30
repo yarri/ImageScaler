@@ -15,6 +15,7 @@ php:
 
 before_install:
   - printf "\n" | pecl install imagick
+  - php -i
   - composer update --dev
 
 script:
