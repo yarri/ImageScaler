@@ -1,12 +1,13 @@
 # vim:ts=2:sw=2:et
 
+# It seems that ImageMagick (the system package) is required in version 6.8 or above.
+# ImageMagick 6.7 doesn't have everything we need (PHP Fatal error:  Undefined class constant 'ALPHACHANNEL_REMOVE').
+
 dist: xenial
 
 language: php
 
 php:
-  - 5.4
-  - 5.5
   - 5.6
   - 7.0
   - 7.1
