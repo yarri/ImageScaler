@@ -14,7 +14,7 @@ php:
   - 7.4snapshot
 
 before_install:
-  - sudo apt-get install php-imagick
+  - printf "\n" | pecl install imagick
   - composer update --dev
 
 script:
