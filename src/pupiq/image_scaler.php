@@ -200,8 +200,13 @@ class ImageScaler {
 
 		$imagick->setImageBackgroundColor($background_pixel);
 
+		// https://www.php.net/manual/en/imagick.flattenimages.php
 		//$imagick = $imagick->flattenImages();
-		$imagick->setImageAlphaChannel(Imagick::ALPHACHANNEL_REMOVE);
+		if(defined("Imagick::ALPHACHANNEL_REMOVE")){
+			$imagick->setImageAlphaChannel(constant("Imagick::ALPHACHANNEL_REMOVE"));
+		}else{
+			$imagick->setImageAlphaChannel(11);
+		}
 		$imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
 
 		if($orientation>0){
