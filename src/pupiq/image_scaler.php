@@ -9,55 +9,81 @@ class ImageScaler {
 	static $PNGQUANT_BINARY = "pngquant";
 	static $PNGQUANT_QUALITY_RANGE = "70-90";
 
-	protected $_OriginalImageWidth;
-	protected $_OriginalImageHeight;
-	protected $_OriginalMimeType;
+	protected $_Orientation = 0; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
 	protected $_MimeType;
 	protected $_FileName;
-	protected $_Content;
 	protected $_FileSize;
 	protected $_ImageWidth;
 	protected $_ImageHeight;
+
+	protected $_DestFileName;
 
 	protected $_Scaled = false;
 	
 	function __construct($filename){
 		$size = getimagesize($filename);
-		$this->_OriginalImageWidth = $this->_ImageWidth = $size[0];
-		$this->_OriginalImageHeight = $this->_ImageHeight = $size[1];
-		$this->_MimeType = $this->_OriginalImageHeight = \Files::DetermineFileType($filename);
-		$this->_Content = \Files::GetFileContent($filename);
+		$this->_ImageWidth = $size[0];
+		$this->_ImageHeight = $size[1];
+		$this->_MimeType = \Files::DetermineFileType($filename);
+		$this->_FileName = $filename;
+	}
+
+	function __destruct(){
+		if($this->_DestFileName){
+			$this->_DestFileName = null;
+		}
+	}
+
+	function getMimeType(){
+		return $this->_MimeType;
 	}
 
 	function getFileName(){
 		return $this->_FileName;
 	}
 
-	function getImageWidth($orientation = 0){
+	function saveTo($filename){
+		\Files::CopyFile($this->_DestFileName,$filename);
+	}
+
+	function setOrientation($orientation){
+		$orientation = (int)$orientation;
+		$orientation = abs($orientation % 4);
+		$this->_Orientation = $orientation;
+	}
+
+	function getOrientation(){ return $this->_Orientation; }
+
+	function getImageWidth($orientation = null){
+		if(is_null($orientation)){ $orientation = $this->getOrientation(); }
 		if($orientation % 2){
 			return $this->_ImageHeight;
 		}
 		return $this->_ImageWidth;
 	}
 
-	function getImageHeight($orientation = 0){
+	function getImageHeight($orientation = null){
+		if(is_null($orientation)){ $orientation = $this->getOrientation(); }
 		if($orientation % 2){
 			return $this->_ImageWidth;
 		}
 		return $this->_ImageHeight;
 	}
 
-	function getContent(){ return $this->_Content; }
-
 	function scaleTo($width,$height = null,$options = array()){
+		if($this->_DestFileName){
+			unlink($this->_DestFileName);
+			$this->_DestFileName = null;
+		}
+
 		if(is_array($height)){
 			$options = $height;
 			$height = null;
 		}
 		if(!isset($height)){ $height = $width; }
 		$options += array(
-			"orientation" => 0, // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
+			"orientation" => $this->getOrientation(), // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 		);
 		$orientation = $options["orientation"];
 		$options += array(
@@ -169,17 +195,10 @@ class ImageScaler {
 				$height<=(($options["height"] / 100.0) * (100.0 - $threshold_percent));
 		}
 
-		$filename = \Files::GetTempDir()."/ScalingImage_".posix_getpid()."_".rand(0,999999);
-		$dest_filename = $filename."_dst";
-
-		\Files::WriteToFile($filename,$this->getContent(),$error,$error_message);
-		if($error){
-			unlink($filename);
-			return false;
-		}
+		$filename = $this->getFileName();
+		$dest_filename = \Files::GetTempDir()."/ImageScaler_".posix_getpid()."_".rand(0,999999);
 
 		if(!($image_ar = getimagesize($filename))){
-			unlink($filename);
 			return false;
 		}
 
@@ -275,8 +294,6 @@ class ImageScaler {
 
 		$background->writeImage($dest_filename);
 
-		unlink($filename);
-
 		// Optimalizace velikosti obrazku PNG pomoci https://pngquant.org/
 		if($options["output_format"]=="png" && self::$PNGQUANT_OPTIMALIZATION_ENABLED){
 			// prepinac --skip-if-larger nefungoval dobre na img.dumlatek.cz (nic se neulozilo a vratila se chyba 98)
@@ -290,33 +307,60 @@ class ImageScaler {
 			}
 		}
 
-		$dest_content = \Files::GetFileContent($dest_filename,$error,$error_message);
-		if($error){
-			unlink($dest_filename);
-			return false;
-		}
-
-		unlink($dest_filename);
-
-		if(strlen($dest_content)==0){
-			return false;
-		}
-
-		$this->_Scaled = true;
-		$this->_OriginalImageWidth = $this->_ImageWidth;
-		$this->_OriginalImageHeight = $this->_ImageHeight;
-		$this->_OriginalMimeType = $this->_MimeType;
-		$this->_ImageWidth = $width;
-		$this->_ImageHeight = $height;
-		$this->_Content = $dest_content;
-		if($options["output_format"]=="png"){
-			$this->_FileName = preg_match("/\\.png$/i",$this->getFileName()) ? $this->getFileName() : $this->getFileName().".png";
-			$this->_MimeType = "image/png";
-		}else{
-			$this->_FileName = preg_match("/\\.jpe?g$/i",$this->getFileName()) ? $this->getFileName() : $this->getFileName().".jpg";
-			$this->_MimeType = "image/jpeg";
-		}
+		$this->_DestFileName = $dest_filename;
 
 		return true;
+	}
+
+	protected function _placeWatermark($wd,&$image,$width,$height){
+		$wi = $wd->getWatermarkImage();
+		switch($wd->getSize()){
+			case "contain":
+				$geom = "{$width}x{$height}";
+				break;
+			case "auto":
+			default:
+				$geom = PUPIQ_MAX_SERVED_IMAGE_WIDTH."x".PUPIQ_MAX_SERVED_IMAGE_HEIGHT;
+		}
+		$wi_url = $wi->getUrl($geom,$wi_width,$wi_height);
+		$uf = new UrlFetcher($wi_url);
+		$wi_content = $uf->getContent();
+		if(!$wi_content){
+			throw new Exception("Unable to download watermark image ($wi_url): ".$uf->getErrorMessage());
+		}
+		$wi_filename = Files::WriteToTemp($wi_content);
+		$watermark = new Imagick();
+		$watermark->readImage($wi_filename);
+		$watermark->setImageAlphaChannel(Imagick::ALPHACHANNEL_ACTIVATE);
+		$watermark->evaluateImage(Imagick::EVALUATE_MULTIPLY, $wd->getOpacity()/100.0, Imagick::CHANNEL_ALPHA);
+
+		switch($wd->getPosition()){
+			case "right-top":
+				$x = $width - $wi_width;
+				$y = 0;
+				break;
+			case "left-bottom":
+				$x = 0;
+				$y = $height - $wi_height;
+				break;
+			case "right-bottom":
+				$x = $width - $wi_width;
+				$y = $height - $wi_height;
+				break;
+			case "center":
+				$x = ($width / 2.0) - ($wi_width / 2.0);
+				$y = ($height / 2.0) - ($wi_height / 2.0);
+				break;	
+			case "left-top":
+			default:
+				$x = 0;
+				$y = 0;
+		}
+		$x = round($x);
+		$y = round($y);
+
+		$image->compositeImage($watermark, imagick::COMPOSITE_OVER, $x, $y);
+
+		Files::Unlink($wi_filename);
 	}
 }
