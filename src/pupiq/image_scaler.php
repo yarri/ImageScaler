@@ -3,10 +3,11 @@ namespace Pupiq;
 
 use \Imagick, \ImagickPixel, \Files;
 
-defined("PNGQUANT_OPTIMALIZATION_ENABLED") || define("PNGQUANT_OPTIMALIZATION_ENABLED",false);
-
-
 class ImageScaler {
+
+	static $PNGQUANT_OPTIMALIZATION_ENABLED = true;
+	static $PNGQUANT_BINARY = "pngquant";
+	static $PNGQUANT_QUALITY_RANGE = "70-90";
 
 	protected $_OriginalImageWidth;
 	protected $_OriginalImageHeight;
@@ -277,9 +278,9 @@ class ImageScaler {
 		unlink($filename);
 
 		// Optimalizace velikosti obrazku PNG pomoci https://pngquant.org/
-		if($options["output_format"]=="png" && PNGQUANT_OPTIMALIZATION_ENABLED){
+		if($options["output_format"]=="png" && self::$PNGQUANT_OPTIMALIZATION_ENABLED){
 			// prepinac --skip-if-larger nefungoval dobre na img.dumlatek.cz (nic se neulozilo a vratila se chyba 98)
-			$cmd = PNGQUANT_BINARY." --quality ".PNGQUANT_QUALITY_RANGE." --force $dest_filename --output $dest_filename.optimized";
+			$cmd = self::$PNGQUANT_BINARY." --quality ".self::$PNGQUANT_QUALITY_RANGE." --force $dest_filename --output $dest_filename.optimized";
 			exec($cmd,$output,$ret_val);
 			if($ret_val){
 				trigger_error("PNG optimization command execution ($cmd) ended with error $ret_val");
