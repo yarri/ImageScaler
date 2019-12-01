@@ -107,9 +107,6 @@ class TcImageScaler extends TcBase {
 		$this->assertSameImages($img_4,__DIR__."/images/white_200x200.png");
 
 		unset($is);
-
-		Files::RecursiveUnlinkDir(TEMP);
-		Files::Mkdir(TEMP);
 	}
 
 }

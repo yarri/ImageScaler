@@ -16,4 +16,9 @@ class TcBase extends TcSuperbase {
 		$result = $image1->compareImages($image2, Imagick::METRIC_MEANSQUAREERROR);
 		$this->assertNotEquals(0.0,$result[1]*1000.0);
 	}
+
+	function tearDown(){
+		Files::RecursiveUnlinkDir(TEMP);
+		Files::Mkdir(TEMP);
+	}
 }
