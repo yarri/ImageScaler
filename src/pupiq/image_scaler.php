@@ -5,10 +5,6 @@ use \Imagick, \ImagickPixel, \Files;
 
 class ImageScaler {
 
-	static $PNGQUANT_OPTIMALIZATION_ENABLED = true;
-	static $PNGQUANT_BINARY = "pngquant";
-	static $PNGQUANT_QUALITY_RANGE = "70-90";
-
 	protected $_Orientation = 0; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
 	protected $_MimeType;
@@ -17,21 +13,25 @@ class ImageScaler {
 	protected $_ImageWidth;
 	protected $_ImageHeight;
 
-	protected $_DestFileName;
+	protected $_Options; // scaleTo() options
+	protected $_Imagick;
 
-	protected $_Scaled = false;
-	
+	protected $_BeforeSaveFilters = [];
+
+	protected $_AfterSaveFilters = [];
+
 	function __construct($filename){
 		$size = getimagesize($filename);
 		$this->_ImageWidth = $size[0];
 		$this->_ImageHeight = $size[1];
 		$this->_MimeType = \Files::DetermineFileType($filename);
 		$this->_FileName = $filename;
-	}
 
-	function __destruct(){
-		if($this->_DestFileName){
-			$this->_DestFileName = null;
+		if(!class_exists("Imagick")){
+			throw new Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
+		}
+		if(!defined("Imagick::ALPHACHANNEL_REMOVE")){
+			throw new Exception("Pupiq\ImageScaler: defined not met: constant Imagick::ALPHACHANNEL_REMOVE doesn't exist");
 		}
 	}
 
@@ -44,7 +44,15 @@ class ImageScaler {
 	}
 
 	function saveTo($filename){
-		\Files::CopyFile($this->_DestFileName,$filename);
+		foreach($this->_BeforeSaveFilters as $filter){
+			$filter->process($this->_Imagick,$this->_Options);
+		}
+
+		$this->_Imagick->writeImage($filename);
+
+		foreach($this->_AfterSaveFilters as $filter){
+			$filter->process($filename,$this->_Options);
+		}
 	}
 
 	function setOrientation($orientation){
@@ -71,11 +79,12 @@ class ImageScaler {
 		return $this->_ImageHeight;
 	}
 
+	function appendAfterSaveFilter($filter){
+		$this->_AfterSaveFilters[] = $filter;
+	}
+
 	function scaleTo($width,$height = null,$options = array()){
-		if($this->_DestFileName){
-			unlink($this->_DestFileName);
-			$this->_DestFileName = null;
-		}
+		$this->_Imagick = null;
 
 		if(is_array($height)){
 			$options = $height;
@@ -113,6 +122,8 @@ class ImageScaler {
 		$options += array(
 			"background_color" => $options["output_format"]=="png" ? "transparent" : "#ffffff"
 		);
+
+		$this->_Options = $options;
 
 		if($options["keep_aspect"]){
 			$current_width = $this->getImageWidth($orientation);
@@ -196,7 +207,6 @@ class ImageScaler {
 		}
 
 		$filename = $this->getFileName();
-		$dest_filename = \Files::GetTempDir()."/ImageScaler_".posix_getpid()."_".rand(0,999999);
 
 		if(!($image_ar = getimagesize($filename))){
 			return false;
@@ -208,7 +218,6 @@ class ImageScaler {
 		// sudo apt-get install php-imagick
 		//myAssert(class_exists("Imagick"));
 
-		//$_stat = imagejpeg($dest_image,$dest_filename, 100);
 		$background_pixel = new ImagickPixel($options["background_color"]);
 
 		$background = new Imagick();
@@ -222,11 +231,7 @@ class ImageScaler {
 
 		// https://www.php.net/manual/en/imagick.flattenimages.php
 		//$imagick = $imagick->flattenImages();
-		if(defined("Imagick::ALPHACHANNEL_REMOVE")){
-			$imagick->setImageAlphaChannel(constant("Imagick::ALPHACHANNEL_REMOVE"));
-		}else{
-			$imagick->setImageAlphaChannel(11);
-		}
+		$imagick->setImageAlphaChannel(constant("Imagick::ALPHACHANNEL_REMOVE"));
 		$imagick->mergeImageLayers(Imagick::LAYERMETHOD_FLATTEN);
 
 		if($orientation>0){
@@ -292,22 +297,7 @@ class ImageScaler {
 			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
 		}
 
-		$background->writeImage($dest_filename);
-
-		// Optimalizace velikosti obrazku PNG pomoci https://pngquant.org/
-		if($options["output_format"]=="png" && self::$PNGQUANT_OPTIMALIZATION_ENABLED){
-			// prepinac --skip-if-larger nefungoval dobre na img.dumlatek.cz (nic se neulozilo a vratila se chyba 98)
-			$cmd = self::$PNGQUANT_BINARY." --quality ".self::$PNGQUANT_QUALITY_RANGE." --force $dest_filename --output $dest_filename.optimized";
-			exec($cmd,$output,$ret_val);
-			if($ret_val){
-				trigger_error("PNG optimization command execution ($cmd) ended with error $ret_val");
-			}
-			if(file_exists("$dest_filename.optimized") && filesize("$dest_filename.optimized")){
-				\Files::MoveFile("$dest_filename.optimized","$dest_filename");
-			}
-		}
-
-		$this->_DestFileName = $dest_filename;
+		$this->_Imagick = $background;
 
 		return true;
 	}
