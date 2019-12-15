@@ -21,7 +21,14 @@ class ImageScaler {
 	protected $_AfterSaveFilters = [];
 
 	function __construct($filename){
-		$size = getimagesize($filename);
+		if(!file_exists($filename)){
+			throw new Exception("Pupiq\ImageScaler: file does not exist ($filename)");
+		}
+
+		if(!($size = getimagesize($filename))){
+			throw new Exception("Pupiq\ImageScaler: file is not image ($filename)");
+		}
+
 		$this->_ImageWidth = $size[0];
 		$this->_ImageHeight = $size[1];
 		$this->_MimeType = \Files::DetermineFileType($filename);
@@ -207,9 +214,11 @@ class ImageScaler {
 		}
 
 		$filename = $this->getFileName();
+		
+		$image_ar = getimagesize($filename);
 
-		if(!($image_ar = getimagesize($filename))){
-			return false;
+		if(!$image_ar){
+			throw new Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
 		$src_width = $image_ar[0];
@@ -303,7 +312,7 @@ class ImageScaler {
 			$filter->process($this->_Imagick,$this->_Options);
 		}
 
-		return true;
+		return $this->_Imagick;
 	}
 
 	protected function _placeWatermark($wd,&$image,$width,$height){
