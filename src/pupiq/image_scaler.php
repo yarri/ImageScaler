@@ -16,7 +16,7 @@ class ImageScaler {
 	protected $_Options; // scaleTo() options
 	protected $_Imagick;
 
-	protected $_BeforeSaveFilters = [];
+	protected $_AfterScaleFilters = [];
 
 	protected $_AfterSaveFilters = [];
 
@@ -44,10 +44,6 @@ class ImageScaler {
 	}
 
 	function saveTo($filename){
-		foreach($this->_BeforeSaveFilters as $filter){
-			$filter->process($this->_Imagick,$this->_Options);
-		}
-
 		$this->_Imagick->writeImage($filename);
 
 		foreach($this->_AfterSaveFilters as $filter){
@@ -77,6 +73,10 @@ class ImageScaler {
 			return $this->_ImageWidth;
 		}
 		return $this->_ImageHeight;
+	}
+
+	function appendAfterScaleFilter($filter){
+		$this->_AfterScaleFilters[] = $filter;
 	}
 
 	function appendAfterSaveFilter($filter){
@@ -298,6 +298,10 @@ class ImageScaler {
 		}
 
 		$this->_Imagick = $background;
+
+		foreach($this->_AfterScaleFilters as $filter){
+			$filter->process($this->_Imagick,$this->_Options);
+		}
 
 		return true;
 	}
