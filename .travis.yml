@@ -3,7 +3,7 @@
 # It seems that ImageMagick (the system package) is required in version 6.8 or above.
 # ImageMagick 6.7 doesn't have everything we need (PHP Fatal error:  Undefined class constant 'ALPHACHANNEL_REMOVE').
 
-dist: xenial
+dist: eoan
 
 language: php
 
