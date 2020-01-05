@@ -22,11 +22,11 @@ class ImageScaler {
 
 	function __construct($filename){
 		if(!file_exists($filename)){
-			throw new Exception("Pupiq\ImageScaler: file does not exist ($filename)");
+			throw new \Exception("Pupiq\ImageScaler: file does not exist ($filename)");
 		}
 
 		if(!($size = getimagesize($filename))){
-			throw new Exception("Pupiq\ImageScaler: file is not image ($filename)");
+			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
 		$this->_ImageWidth = $size[0];
@@ -35,10 +35,10 @@ class ImageScaler {
 		$this->_FileName = $filename;
 
 		if(!class_exists("Imagick")){
-			throw new Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
+			throw new \Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
 		}
 		if(!defined("Imagick::ALPHACHANNEL_REMOVE")){
-			throw new Exception("Pupiq\ImageScaler: defined not met: constant Imagick::ALPHACHANNEL_REMOVE doesn't exist");
+			throw new \Exception("Pupiq\ImageScaler: defined not met: constant Imagick::ALPHACHANNEL_REMOVE doesn't exist");
 		}
 	}
 
@@ -218,7 +218,7 @@ class ImageScaler {
 		$image_ar = getimagesize($filename);
 
 		if(!$image_ar){
-			throw new Exception("Pupiq\ImageScaler: file is not image ($filename)");
+			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
 		$src_width = $image_ar[0];
@@ -329,7 +329,7 @@ class ImageScaler {
 		$uf = new UrlFetcher($wi_url);
 		$wi_content = $uf->getContent();
 		if(!$wi_content){
-			throw new Exception("Unable to download watermark image ($wi_url): ".$uf->getErrorMessage());
+			throw new \Exception("Unable to download watermark image ($wi_url): ".$uf->getErrorMessage());
 		}
 		$wi_filename = Files::WriteToTemp($wi_content);
 		$watermark = new Imagick();
