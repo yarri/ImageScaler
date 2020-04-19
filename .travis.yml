@@ -3,7 +3,7 @@
 # It seems that ImageMagick (the system package) is required in version 6.8 or above.
 # ImageMagick 6.7 doesn't have everything we need (PHP Fatal error:  Undefined class constant 'ALPHACHANNEL_REMOVE').
 
-dist: eoan
+dist: xenial
 
 language: php
 
@@ -12,7 +12,7 @@ php:
   - 7.0
   - 7.1
   - 7.3
-  - 7.4snapshot
+  - 7.4
 
 before_install:
   - sudo apt-get install pngquant
