@@ -20,5 +20,30 @@ class TcImageScaler extends TcBase {
 		$this->assertEquals("image/jpeg",$is->getMimeType());
 		$this->assertEquals(153,$is->getImageWidth());
 		$this->assertEquals(331,$is->getImageHeight());
+
+		$output_filename = Files::GetTempFilename();
+
+		$is->scaleTo(100,100);
+		$is->saveTo($output_filename);
+		//
+		$is2 = new ImageScaler($output_filename);
+		$this->assertEquals(100,$is2->getImageWidth());
+		$this->assertEquals(100,$is2->getImageHeight());
+
+		$is->scaleTo(100,100,array("keep_aspect" => true));
+		$is->saveTo($output_filename);
+		//
+		$is2 = new ImageScaler($output_filename);
+		$this->assertEquals(46,$is2->getImageWidth());
+		$this->assertEquals(100,$is2->getImageHeight());
+
+		$is->scaleTo(100,100,array("keep_aspect" => true, "orientation" => 1));
+		$is->saveTo($output_filename);
+		//
+		$is2 = new ImageScaler($output_filename);
+		$this->assertEquals(100,$is2->getImageWidth());
+		$this->assertEquals(46,$is2->getImageHeight());
+
+		unlink($output_filename);
 	}
 }
