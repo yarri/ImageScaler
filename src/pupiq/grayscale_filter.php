@@ -1,7 +1,7 @@
 <?php
 namespace Pupiq;
 
-class GrayscaleFilter {
+class GrayscaleFilter extends AfterScaleFilter {
 
 	function __construct(){
 	}

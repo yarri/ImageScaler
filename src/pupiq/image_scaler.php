@@ -51,6 +51,9 @@ class ImageScaler {
 	}
 
 	function saveTo($filename){
+		if(is_null($this->_Imagick)){
+			$this->scaleTo($this->getImageWidth(),$this->getImageHeight());
+		}
 		$this->_Imagick->writeImage($filename);
 
 		foreach($this->_AfterSaveFilters as $filter){
@@ -119,8 +122,6 @@ class ImageScaler {
 			"auto_convert_cmyk_to_rgb" => true,
 
 			"output_format" => "jpeg", // "jpeg", "png"
-
-			"watermark_definition" => null, // WatermarkDefinition
 		);
 
 		// sanitize
@@ -295,10 +296,6 @@ class ImageScaler {
 
 		$options["sharpen_image"] && $background->sharpenImage(1,1);
 
-		if($wd = $options["watermark_definition"]){
-			$this->_placeWatermark($wd,$background,$width,$height);
-		}
-
 		if($options["output_format"]=="jpeg"){
 			$background->setImageCompression(Imagick::COMPRESSION_JPEG);
 			$background->setImageCompressionQuality($options["compression_quality"]);
@@ -313,57 +310,5 @@ class ImageScaler {
 		}
 
 		return $this->_Imagick;
-	}
-
-	protected function _placeWatermark($wd,&$image,$width,$height){
-		$wi = $wd->getWatermarkImage();
-		switch($wd->getSize()){
-			case "contain":
-				$geom = "{$width}x{$height}";
-				break;
-			case "auto":
-			default:
-				$geom = PUPIQ_MAX_SERVED_IMAGE_WIDTH."x".PUPIQ_MAX_SERVED_IMAGE_HEIGHT;
-		}
-		$wi_url = $wi->getUrl($geom,$wi_width,$wi_height);
-		$uf = new UrlFetcher($wi_url);
-		$wi_content = $uf->getContent();
-		if(!$wi_content){
-			throw new \Exception("Unable to download watermark image ($wi_url): ".$uf->getErrorMessage());
-		}
-		$wi_filename = Files::WriteToTemp($wi_content);
-		$watermark = new Imagick();
-		$watermark->readImage($wi_filename);
-		$watermark->setImageAlphaChannel(Imagick::ALPHACHANNEL_ACTIVATE);
-		$watermark->evaluateImage(Imagick::EVALUATE_MULTIPLY, $wd->getOpacity()/100.0, Imagick::CHANNEL_ALPHA);
-
-		switch($wd->getPosition()){
-			case "right-top":
-				$x = $width - $wi_width;
-				$y = 0;
-				break;
-			case "left-bottom":
-				$x = 0;
-				$y = $height - $wi_height;
-				break;
-			case "right-bottom":
-				$x = $width - $wi_width;
-				$y = $height - $wi_height;
-				break;
-			case "center":
-				$x = ($width / 2.0) - ($wi_width / 2.0);
-				$y = ($height / 2.0) - ($wi_height / 2.0);
-				break;	
-			case "left-top":
-			default:
-				$x = 0;
-				$y = 0;
-		}
-		$x = round($x);
-		$y = round($y);
-
-		$image->compositeImage($watermark, imagick::COMPOSITE_OVER, $x, $y);
-
-		Files::Unlink($wi_filename);
 	}
 }
