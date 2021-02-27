@@ -105,6 +105,15 @@ class ImageScaler {
 			"orientation" => $this->getOrientation(), // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 		);
 		$orientation = $options["orientation"];
+		
+		$output_formats = array(
+			"image/jpeg" => "jpeg",
+			"image/jpg" => "jpeg",
+			"image/png" => "png",
+		);
+
+		$mime_type = $this->getMimeType();
+
 		$options += array(
 			// odkud z originalu budeme rezat
 			"x" => 0,
@@ -121,7 +130,7 @@ class ImageScaler {
 			"compression_quality" => 85,
 			"auto_convert_cmyk_to_rgb" => true,
 
-			"output_format" => "jpeg", // "jpeg", "png"
+			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png"
 		);
 
 		// sanitize

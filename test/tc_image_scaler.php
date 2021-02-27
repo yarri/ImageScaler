@@ -45,5 +45,18 @@ class TcImageScaler extends TcBase {
 		$this->assertEquals(46,$is2->getImageHeight());
 
 		unlink($output_filename);
+
+		// Method is scaleTo() is not gonna be called
+		$is = new ImageScaler(__DIR__."/images/dungeon_master.png");
+		$output_filename = Files::GetTempFilename();
+		$is->saveTo($output_filename);
+		$this->assertEquals("image/png",Files::DetermineFileType($output_filename));
+		unlink($output_filename);
+		//
+		$is = new ImageScaler(__DIR__."/images/pigeon.jpg");
+		$output_filename = Files::GetTempFilename();
+		$is->saveTo($output_filename);
+		$this->assertEquals("image/jpeg",Files::DetermineFileType($output_filename));
+		unlink($output_filename);
 	}
 }
