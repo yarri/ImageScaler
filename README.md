@@ -34,21 +34,21 @@ There are plenty of options in method scaleTo(). Some of them are against each o
       "orientation" => 0, // automatically detected 
 
       // this is the source area on the original image
-			"x" => 0,
-			"y" => 0,
-			"width" => $image_width,
-			"height" => $image_height,
+      "x" => 0,
+      "y" => 0,
+      "width" => $image_width,
+      "height" => $image_height,
 
-			"keep_aspect" => false,
+      "keep_aspect" => false,
 
-			"crop" => null, // null, "auto", "top", "bottom"
+      "crop" => null, // null, "auto", "top", "bottom"
 
-			"strip_meta_data" => true,
-			"sharpen_image" => null, // true, false, null (auto)
-			"compression_quality" => 85,
-			"auto_convert_cmyk_to_rgb" => true,
+      "strip_meta_data" => true,
+      "sharpen_image" => null, // true, false, null (auto)
+      "compression_quality" => 85,
+      "auto_convert_cmyk_to_rgb" => true,
 
-			"output_format" => "jpeg", // "jpeg", "png"
+      "output_format" => "jpeg", // "jpeg", "png"
 
       "background_color" => "#ffffff", // by default it is "transparent" for png images
     ]);
