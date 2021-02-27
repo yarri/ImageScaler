@@ -34,27 +34,9 @@ class WatermarkFilter extends AfterScaleFilter {
 		$width = $options["width"];
 		$height = $options["height"];
 
-		/*
-		$wi = $wd->getWatermarkImage();
-		switch($wd->getSize()){
-			case "contain":
-				$geom = "{$width}x{$height}";
-				break;
-			case "auto":
-			default:
-				$geom = PUPIQ_MAX_SERVED_IMAGE_WIDTH."x".PUPIQ_MAX_SERVED_IMAGE_HEIGHT;
-		}
-		$wi_url = $wi->getUrl($geom,$wi_width,$wi_height);
-		$uf = new UrlFetcher($wi_url);
-		$wi_content = $uf->getContent();
-		if(!$wi_content){
-			throw new \Exception("Unable to download watermark image ($wi_url): ".$uf->getErrorMessage());
-		}
-		$wi_filename = Files::WriteToTemp($wi_content);
-		*/
-
 		$wi_filename = $this->getWatermarkImageFilename();
 		$wi = new ImageScaler($wi_filename);
+		$wi->setOrientation(0);
 		$wi_width = $wi->getImageWidth();
 		$wi_height = $wi->getImageHeight();
 
