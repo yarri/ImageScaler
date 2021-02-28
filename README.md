@@ -88,7 +88,7 @@ This package comes with several filters that can be used instantly.
 
 #### Grayscale filter
 
-Grayscale filter converts the currently processed image to grayscale. It is a after scale filter.
+Grayscale filter converts the currently processed image to grayscale. It is an after scale filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
     $scaler->appendAfterScaleFilter(new Pupiq\GrayscaleFilter());
@@ -100,7 +100,7 @@ Grayscale filter converts the currently processed image to grayscale. It is a af
 
 For png images there is Pngquant Optimizer filter. It can significantly reduce size of the final PNG image. It is required that the binary pngquant is installed in the system.
 
-Pngquant Optimizer filter is a after save filter.
+Pngquant Optimizer filter is an after save filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.png");
     $scaler->appendAfterSaveFilter(new Pupiq\PngquantOptimizer([
@@ -126,7 +126,7 @@ This filter places the given watermark into the currently processed image.
     $scaler->scaleTo(300,300);
     $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked image
 
-Filters can of course be combined. They are processed in the given order.
+Of course, the filters can be combined. They are processed in the given order.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
 
