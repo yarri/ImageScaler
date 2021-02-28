@@ -6,7 +6,7 @@ Handy tool for image resizing. Produces well optimized images for web.
 Basic Usage
 -----------
 
-    $scaler = new \Pupiq\ImageScaler("/path/to/image.jpg");
+    $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
 
     // getting info about image
     $scaler->getImageWidth(); // e.g. 1920
@@ -21,7 +21,7 @@ Basic Usage
     $scaler->saveTo("/path/to/output_file.jpg");
 
     // checking thre result
-    $scaler_out = new \Pupiq\ImageScaler("/path/to/output_file.jpg");
+    $scaler_out = new Pupiq\ImageScaler("/path/to/output_file.jpg");
     $scaler_out->getImageWidth(); // 300
     $scaler_out->getImageHeight(); // 169
 
@@ -75,7 +75,66 @@ Typical usages
     // and preserve the top part of the image
     // this is a great option e.g. for magazine covers
     $scaler->scaleTo(200,200,["crop" => "top"]);
-    
+
+Filters
+-------
+
+Image processing can be affected using filters. There are two types of filters.
+
+* After scale filters
+* After save filters
+
+This package comes with several filters that can be used instantly.
+
+#### Grayscale filter
+
+Grayscale filter converts the currently processed image to grayscale. It is a after scale filter.
+
+    $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
+    $scaler->appendAfterScaleFilter(new Pupiq\GrayscaleFilter());
+
+    $scaler->scaleTo(300,300);
+    $scaler->saveTo("/path/to/output_image.jpg"); // grayscale
+
+#### Pngquant Optimizer filter
+
+For png images there is Pngquant Optimizer filter. It can significantly reduce size of the final PNG image. It is required that the binary pngquant is installed in the system.
+
+Pngquant Optimizer filter is a after save filter.
+
+    $scaler = new Pupiq\ImageScaler("/path/to/image.png");
+    $scaler->appendAfterSaveFilter(new Pupiq\PngquantOptimizer([
+      "pngquant_binary" => "/usr/bin/pngquant",
+      "quality_range" => "70-90"
+    ]));
+
+    $scaler->scaleTo(300,300);
+    $scaler->saveTo("/path/to/output_image.png");
+
+For jpeg images, this filter simply does nothing.
+
+#### Watermark filter
+
+This filter places the given watermark into the currently processed image.
+
+    $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
+    $scaler->appendAfterScaleFilter(new Pupiq\WatermarkFilter("/path/to/watermak_image.png",[
+      "opacity" => 50, // 50%
+      "position" => "center", // "center", "left-top" "left-bottom", "right-top", "right-bottom"
+    ]);
+
+    $scaler->scaleTo(300,300);
+    $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked image
+
+Filters can of course be combined. They are processed in the given order.
+
+    $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
+
+    $scaler->appendAfterScaleFilter(new Pupiq\WatermarkFilter("/path/to/watermak_image.png"));
+    $scaler->appendAfterScaleFilter(new Pupiq\GrayscaleFilter());
+
+    $scaler->scaleTo(300,300);
+    $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked and grayscaled image
 
 Installation
 ------------
