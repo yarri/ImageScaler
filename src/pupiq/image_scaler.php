@@ -116,6 +116,8 @@ class ImageScaler {
 			"image/jpeg" => "jpeg",
 			"image/jpg" => "jpeg",
 			"image/png" => "png",
+			"image/gif" => "gif",
+			"image/webp" => "webp",
 		);
 
 		$mime_type = $this->getMimeType();
@@ -136,14 +138,14 @@ class ImageScaler {
 			"compression_quality" => 85,
 			"auto_convert_cmyk_to_rgb" => true,
 
-			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png"
+			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png", "webp"
 		);
 
-		// sanitize
-		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : "jpeg";
+		// gif -> png
+		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		$options += array(
-			"background_color" => $options["output_format"]=="png" ? "transparent" : "#ffffff"
+			"background_color" => in_array($options["output_format"],array("png","webp")) ? "transparent" : "#ffffff"
 		);
 
 		$this->_Options = $options;
@@ -316,6 +318,11 @@ class ImageScaler {
 			$background->setImageCompressionQuality($options["compression_quality"]);
 			$background->setInterlaceScheme(Imagick::INTERLACE_JPEG); // progressive jpeg
 			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
+		}
+
+		if($options["output_format"]=="webp"){
+			$background->setImageCompression(Imagick::COMPRESSION_WEBP);
+			$background->setImageCompressionQuality($options["compression_quality"]);
 		}
 
 		$this->_Imagick = $background;
