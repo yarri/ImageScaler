@@ -2,8 +2,6 @@
 class TcWatermark extends TcBase {
 
 	function test(){
-		$watermark_filter = new Pupiq\WatermarkFilter(__DIR__ . "/images/watermark.png",array("opacity" => 50, "position" => "center"));
-
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
 		$scaler->appendAfterScaleFilter(
 			new Pupiq\WatermarkFilter(__DIR__ . "/images/watermark.png")

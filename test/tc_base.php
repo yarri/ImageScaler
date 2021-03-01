@@ -6,7 +6,7 @@ class TcBase extends TcSuperbase {
 		$image2 = new Imagick($image2_filename);
 
 		$result = $image1->compareImages($image2, Imagick::METRIC_MEANSQUAREERROR);
-		$this->assertEquals(0.0,$result[1]*1000.0);
+		$this->assertEquals(0.0,$result[1]*1000.0,"$image2_filename is not same as $image1_filename");
 	}
 
 	function assertNotSameImages($image1_filename,$image2_filename){
