@@ -8,15 +8,30 @@ dist: xenial
 language: php
 
 php:
-  - 5.6
+#  - 5.6
 #  - 7.0
 #  - 7.1
 #  - 7.3
-#  - 7.4
+  - 7.4
 
+# https://github.com/rosell-dk/webp-convert/wiki/Installing-Imagick-extension-with-WebP-support
 before_install:
+  - sudo apt-get update
+  - sudo apt-get install libjpeg-dev libpng-dev
+  - wget https://storage.googleapis.com/downloads.webmproject.org/releases/webp/libwebp-1.1.0.tar.gz
+  - tar xvzf libwebp-1.1.0.tar.gz
+  - cd libwebp-1.1.0
+  - ./configure && make && sudo make install
+  - cd ..
+  - sudo apt build-dep imagemagick
+  - wget https://imagemagick.org/download/ImageMagick.tar.gz
+  - tar xvzf ImageMagick.tar.gz
+  - cd ImageMagick-*
+  - ./configure --with-webp=yes && sudo make && sudo make install
+  - cd ..
+  - sudo ldconfig /usr/local/lib
   - sudo apt-get install pngquant
-  - sudo apt-get install imagemagick
+  - sudo apt-get install imagemagick gcc libmagickwand-dev php-pear
   - printf "\n" | pecl install imagick
   - php -i
   - composer update --dev

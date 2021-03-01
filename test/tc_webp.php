@@ -11,7 +11,7 @@ class TcWebp extends TcBase {
 
 		$scaler->scaleTo(100,100);
 		$outfile = Files::GetTempFilename();
-		$scaleTo->saveTo($outfile);
+		$scaler->saveTo($outfile);
 
 		$scaler_out = new Pupiq\ImageScaler($outfile);
 		$this->assertEquals("image/webp",$scaler->getMimeType());
