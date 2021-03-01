@@ -2,7 +2,7 @@
         "name": "pupiq/image-scaler",
         "type": "library",
         "description": "Handy tool for image resizing. Produces well optimized images for web.",
-        "keywords": ["image","resize","scale"],
+        "keywords": ["image","resize","scale","watermark"],
         "homepage": "https://github.com/yarri/ImageScaler",
         "license": ["MIT"],
         "authors": [
