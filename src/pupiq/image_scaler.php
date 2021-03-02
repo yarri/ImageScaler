@@ -9,7 +9,6 @@ class ImageScaler {
 
 	protected $_MimeType;
 	protected $_FileName;
-	protected $_FileSize;
 	protected $_ImageWidth;
 	protected $_ImageHeight;
 
@@ -25,14 +24,14 @@ class ImageScaler {
 			throw new \Exception("Pupiq\ImageScaler: file does not exist ($filename)");
 		}
 
-		if(!($size = getimagesize($filename))){
+		if(!($size = $this->_getimagesize($filename))){
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
+		$this->_MimeType = $size[2];
+		$this->_FileName = $filename;
 		$this->_ImageWidth = $size[0];
 		$this->_ImageHeight = $size[1];
-		$this->_MimeType = \Files::DetermineFileType($filename);
-		$this->_FileName = $filename;
 
 		if(!class_exists("Imagick")){
 			throw new \Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
@@ -54,6 +53,7 @@ class ImageScaler {
 		if(is_null($this->_Imagick)){
 			$this->scaleTo($this->getImageWidth(),$this->getImageHeight());
 		}
+
 		$this->_Imagick->writeImage($filename);
 
 		foreach($this->_AfterSaveFilters as $filter){
@@ -116,6 +116,8 @@ class ImageScaler {
 			"image/jpeg" => "jpeg",
 			"image/jpg" => "jpeg",
 			"image/png" => "png",
+			"image/gif" => "gif",
+			"image/webp" => "webp",
 		);
 
 		$mime_type = $this->getMimeType();
@@ -136,14 +138,14 @@ class ImageScaler {
 			"compression_quality" => 85,
 			"auto_convert_cmyk_to_rgb" => true,
 
-			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png"
+			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png", "webp"
 		);
 
-		// sanitize
-		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : "jpeg";
+		// gif -> png
+		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		$options += array(
-			"background_color" => $options["output_format"]=="png" ? "transparent" : "#ffffff"
+			"background_color" => in_array($options["output_format"],array("png","webp")) ? "transparent" : "#ffffff"
 		);
 
 		$this->_Options = $options;
@@ -231,7 +233,7 @@ class ImageScaler {
 
 		$filename = $this->getFileName();
 		
-		$image_ar = getimagesize($filename);
+		$image_ar = $this->_getimagesize($filename);
 
 		if(!$image_ar){
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
@@ -284,8 +286,11 @@ class ImageScaler {
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
-		$imagick->setImageFormat($options["output_format"]); // "jpeg", "png"
-		$background->setImageFormat($options["output_format"]); // "jpeg", "png"
+		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
+		if(!$stat){
+			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
+		}
+		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
 
 		// neni treba delat, pokud se kopiruje cely obrazek...
 		if($options["x"]!=0 || $options["y"]!=0 || $options["width"]!=$this->getImageWidth($orientation) || $options["height"]!=$this->getImageHeight($orientation)){
@@ -318,6 +323,10 @@ class ImageScaler {
 			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
 		}
 
+		if($options["output_format"]=="webp"){
+			// TODO: $background->setImageCompressionQuality($options["compression_quality"]);
+		}
+
 		$this->_Imagick = $background;
 
 		foreach($this->_AfterScaleFilters as $filter){
@@ -325,5 +334,33 @@ class ImageScaler {
 		}
 
 		return $this->_Imagick;
+	}
+
+	protected function _getimagesize($filename){
+		$width = $height = $mime_type = null;
+
+		if($size = getimagesize($filename)){
+			$width = $size[0];
+			$height = $size[1];
+			$mime_type = \Files::DetermineFileType($filename);
+		}else{
+			$imagick = new Imagick();
+			if($imagick->readImage($filename)){
+				$width = $imagick->getImageWidth();
+				$height = $imagick->getImageHeight();
+				$mime_type = $imagick->getImageMimeType();
+			}
+			unset($imagick);
+		}
+
+		if(is_null($width)){
+			return null;
+		}
+
+		if($mime_type == "image/x-webp"){
+			$mime_type = "image/webp";
+		}
+
+		return array($width,$height,$mime_type);
 	}
 }

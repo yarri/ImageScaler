@@ -59,4 +59,14 @@ class TcImageScaler extends TcBase {
 		$this->assertEquals("image/jpeg",Files::DetermineFileType($output_filename));
 		unlink($output_filename);
 	}
+
+	function test_not_image(){
+		$exeption_thrown = false;
+		try {
+			$is = new ImageScaler(__FILE__);
+		} catch(Exception $e) {
+			$exeption_thrown = true;
+		}
+		$this->assertEquals(true,$exeption_thrown);
+	}
 }
