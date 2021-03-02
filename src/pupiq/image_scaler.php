@@ -25,12 +25,21 @@ class ImageScaler {
 			throw new \Exception("Pupiq\ImageScaler: file does not exist ($filename)");
 		}
 
-		if(!($size = getimagesize($filename))){
+		if(($size = getimagesize($filename))){
+			$this->_ImageWidth = $size[0];
+			$this->_ImageHeight = $size[1];
+		}else{
+			$imagick = new Imagick();
+			if($imagick->readImage($filename)){
+				$this->_ImageWidth = $imagick->getImageWidth();
+				$this->_ImageHeight = $imagick->getImageHeight();
+			}
+		}
+
+		if(!$this->_ImageWidth){
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
-		$this->_ImageWidth = $size[0];
-		$this->_ImageHeight = $size[1];
 		$this->_MimeType = \Files::DetermineFileType($filename);
 		$this->_FileName = $filename;
 
