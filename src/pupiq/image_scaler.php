@@ -9,7 +9,6 @@ class ImageScaler {
 
 	protected $_MimeType;
 	protected $_FileName;
-	protected $_FileSize;
 	protected $_ImageWidth;
 	protected $_ImageHeight;
 
@@ -25,28 +24,14 @@ class ImageScaler {
 			throw new \Exception("Pupiq\ImageScaler: file does not exist ($filename)");
 		}
 
-		if(($size = getimagesize($filename))){
-			$this->_ImageWidth = $size[0];
-			$this->_ImageHeight = $size[1];
-			$this->_MimeType = \Files::DetermineFileType($filename);
-		}else{
-			$imagick = new Imagick();
-			if($imagick->readImage($filename)){
-				$this->_ImageWidth = $imagick->getImageWidth();
-				$this->_ImageHeight = $imagick->getImageHeight();
-				$this->_MimeType = $imagick->getImageMimeType();
-			}
-		}
-
-		if(!$this->_ImageWidth){
+		if(!($size = $this->_getimagesize($filename))){
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
+		$this->_MimeType = $size[2];
 		$this->_FileName = $filename;
-
-		if($this->_MimeType=="image/x-webp"){
-			$this->_MimeType = "image/webp";
-		}
+		$this->_ImageWidth = $size[0];
+		$this->_ImageHeight = $size[1];
 
 		if(!class_exists("Imagick")){
 			throw new \Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
@@ -248,7 +233,7 @@ class ImageScaler {
 
 		$filename = $this->getFileName();
 		
-		$image_ar = getimagesize($filename);
+		$image_ar = $this->_getimagesize($filename);
 
 		if(!$image_ar){
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
@@ -349,5 +334,33 @@ class ImageScaler {
 		}
 
 		return $this->_Imagick;
+	}
+
+	protected function _getimagesize($filename){
+		$width = $height = $mime_type = null;
+
+		if($size = getimagesize($filename)){
+			$width = $size[0];
+			$height = $size[1];
+			$mime_type = \Files::DetermineFileType($filename);
+		}else{
+			$imagick = new Imagick();
+			if($imagick->readImage($filename)){
+				$width = $imagick->getImageWidth();
+				$height = $imagick->getImageHeight();
+				$mime_type = $imagick->getImageMimeType();
+			}
+			unset($imagick);
+		}
+
+		if(is_null($width)){
+			return null;
+		}
+
+		if($mime_type == "image/x-webp"){
+			$mime_type = "image/webp";
+		}
+
+		return array($width,$height,$mime_type);
 	}
 }
