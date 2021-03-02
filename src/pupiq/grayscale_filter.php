@@ -12,5 +12,7 @@ class GrayscaleFilter extends AfterScaleFilter {
 
 		//$imagick->modulateImage(100,0,100);
 		$imagick->transformImageColorspace(\Imagick::COLORSPACE_GRAY);
+
+		$imagick->setImageColorspace(\Imagick::COLORSPACE_SRGB);
 	}
 }
