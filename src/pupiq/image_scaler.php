@@ -54,6 +54,7 @@ class ImageScaler {
 		if(is_null($this->_Imagick)){
 			$this->scaleTo($this->getImageWidth(),$this->getImageHeight());
 		}
+
 		$this->_Imagick->writeImage($filename);
 
 		foreach($this->_AfterSaveFilters as $filter){
@@ -286,8 +287,11 @@ class ImageScaler {
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
-		$imagick->setImageFormat($options["output_format"]); // "jpeg", "png"
-		$background->setImageFormat($options["output_format"]); // "jpeg", "png"
+		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
+		if(!$stat){
+			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
+		}
+		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
 
 		// neni treba delat, pokud se kopiruje cely obrazek...
 		if($options["x"]!=0 || $options["y"]!=0 || $options["width"]!=$this->getImageWidth($orientation) || $options["height"]!=$this->getImageHeight($orientation)){
@@ -321,8 +325,7 @@ class ImageScaler {
 		}
 
 		if($options["output_format"]=="webp"){
-			$background->setImageCompression(Imagick::COMPRESSION_WEBP);
-			$background->setImageCompressionQuality($options["compression_quality"]);
+			// TODO: $background->setImageCompressionQuality($options["compression_quality"]);
 		}
 
 		$this->_Imagick = $background;

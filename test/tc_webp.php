@@ -14,10 +14,10 @@ class TcWebp extends TcBase {
 		$scaler->saveTo($outfile);
 
 		$scaler_out = new Pupiq\ImageScaler($outfile);
-		$this->assertEquals("image/webp",$scaler->getMimeType());
-		$this->assertEquals(0,$scaler->getOrientation());
-		$this->assertEquals(100,$scaler->getImageWidth());
-		$this->assertEquals(100,$scaler->getImageHeight());
+		$this->assertEquals("image/webp",$scaler_out->getMimeType());
+		$this->assertEquals(0,$scaler_out->getOrientation());
+		$this->assertEquals(100,$scaler_out->getImageWidth());
+		$this->assertEquals(100,$scaler_out->getImageHeight());
 
 		unlink($outfile);
 	}
