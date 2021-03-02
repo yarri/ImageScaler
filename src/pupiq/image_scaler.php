@@ -28,11 +28,13 @@ class ImageScaler {
 		if(($size = getimagesize($filename))){
 			$this->_ImageWidth = $size[0];
 			$this->_ImageHeight = $size[1];
+			$this->_MimeType = \Files::DetermineFileType($filename);
 		}else{
 			$imagick = new Imagick();
 			if($imagick->readImage($filename)){
 				$this->_ImageWidth = $imagick->getImageWidth();
 				$this->_ImageHeight = $imagick->getImageHeight();
+				$this->_MimeType = $imagick->getImageMimeType();
 			}
 		}
 
@@ -40,8 +42,11 @@ class ImageScaler {
 			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
 		}
 
-		$this->_MimeType = \Files::DetermineFileType($filename);
 		$this->_FileName = $filename;
+
+		if($this->_MimeType=="image/x-webp"){
+			$this->_MimeType = "image/webp";
+		}
 
 		if(!class_exists("Imagick")){
 			throw new \Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
