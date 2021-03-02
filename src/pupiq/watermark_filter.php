@@ -31,8 +31,8 @@ class WatermarkFilter extends AfterScaleFilter {
 	}
 
 	function process($imagick,$options){
-		$width = $options["width"];
-		$height = $options["height"];
+		$width = $imagick->getImageWidth();
+		$height = $imagick->getImageHeight();
 
 		$wi_filename = $this->getWatermarkImageFilename();
 		$wi = new ImageScaler($wi_filename);
