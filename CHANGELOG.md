@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.2.1] - 2021-03-02
+
+- WatermarkFilter fixed
+
 ## [0.2] - 2021-03-01
 
 - Added after scale filter WatermarkFilter
