@@ -4,7 +4,7 @@ class TcWatermark extends TcBase {
 	function test(){
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
 		$scaler->appendAfterScaleFilter(
-			new Pupiq\WatermarkFilter(__DIR__ . "/images/watermark.png")
+			new Pupiq\ImageScaler\WatermarkFilter(__DIR__ . "/images/watermark.png")
 		);
 		$scaler->scaleTo(575,359);
 		$outfile = Files::GetTempFilename();
@@ -15,7 +15,7 @@ class TcWatermark extends TcBase {
 
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
 		$scaler->appendAfterScaleFilter(
-			new Pupiq\WatermarkFilter(
+			new Pupiq\ImageScaler\WatermarkFilter(
 				__DIR__ . "/images/watermark.png",
 				array("opacity" => 50, "position" => "center")
 			)
@@ -29,7 +29,7 @@ class TcWatermark extends TcBase {
 
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
 		$scaler->appendAfterScaleFilter(
-			new Pupiq\WatermarkFilter(
+			new Pupiq\ImageScaler\WatermarkFilter(
 				__DIR__ . "/images/watermark.png",
 				array("opacity" => 100, "position" => "left-top")
 			)
@@ -43,7 +43,7 @@ class TcWatermark extends TcBase {
 
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
 		$scaler->appendAfterScaleFilter(
-			new Pupiq\WatermarkFilter(
+			new Pupiq\ImageScaler\WatermarkFilter(
 				__DIR__ . "/images/watermark.png",
 				array("opacity" => 100, "position" => "right-bottom")
 			)

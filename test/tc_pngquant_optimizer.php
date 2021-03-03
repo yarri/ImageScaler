@@ -1,5 +1,5 @@
 <?php
-use Pupiq\ImageScaler, Pupiq\PngquantOptimizer;
+use Pupiq\ImageScaler, Pupiq\ImageScaler\PngquantOptimizer;
 
 class TcPngquantOptimizer extends TcBase {
 

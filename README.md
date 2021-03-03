@@ -81,8 +81,14 @@ Filters
 
 Image processing can be affected using filters. There are two types of filters.
 
-* After scale filters
-* After save filters
+* **After scale filters**<br>
+  These filters are executed right after the scaling. The Imagick object is passed to them.<br>
+  After scaling filter must be an instance of *Pupiq\ImageScaler\AfterScaleFilter*
+* **After save filters**
+  These filters are executed right after the saving image to to the output file. The filename is passed to them.<br>
+  After saving filters must be an instance of *Pupiq\ImageScaler\AfterSaveFilter*
+
+In both types of filter, details about the desired transformation are also passed to them.
 
 This package comes with several filters that can be used instantly.
 
@@ -91,7 +97,7 @@ This package comes with several filters that can be used instantly.
 Grayscale filter converts the currently processed image to grayscale. It is an after scale filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
-    $scaler->appendAfterScaleFilter(new Pupiq\GrayscaleFilter());
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\GrayscaleFilter());
 
     $scaler->scaleTo(300,300);
     $scaler->saveTo("/path/to/output_image.jpg"); // grayscale
@@ -103,7 +109,7 @@ For png images there is Pngquant Optimizer filter. It can significantly reduce s
 Pngquant Optimizer filter is an after save filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.png");
-    $scaler->appendAfterSaveFilter(new Pupiq\PngquantOptimizer([
+    $scaler->appendAfterSaveFilter(new Pupiq\ImageScaler\PngquantOptimizer([
       "pngquant_binary" => "/usr/bin/pngquant",
       "quality_range" => "70-90"
     ]));
@@ -118,7 +124,7 @@ For jpeg images, this filter simply does nothing.
 This filter places the given watermark into the currently processed image.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
-    $scaler->appendAfterScaleFilter(new Pupiq\WatermarkFilter("/path/to/watermak_image.png",[
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermak_image.png",[
       "opacity" => 50, // 50%
       "position" => "center", // "center", "left-top" "left-bottom", "right-top", "right-bottom"
     ]);
@@ -130,8 +136,8 @@ Of course, the filters can be combined. They are processed in the given order.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
 
-    $scaler->appendAfterScaleFilter(new Pupiq\WatermarkFilter("/path/to/watermak_image.png"));
-    $scaler->appendAfterScaleFilter(new Pupiq\GrayscaleFilter());
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermak_image.png"));
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\GrayscaleFilter());
 
     $scaler->scaleTo(300,300);
     $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked and grayscaled image

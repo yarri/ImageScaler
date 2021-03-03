@@ -1,5 +1,5 @@
 <?php
-namespace Pupiq;
+namespace Pupiq\ImageScaler;
 
 class PngquantOptimizer extends AfterSaveFilter {
 

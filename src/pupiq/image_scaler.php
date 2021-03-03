@@ -86,15 +86,15 @@ class ImageScaler {
 	}
 
 	function appendAfterScaleFilter($filter){
-		if(!is_a($filter,"\Pupiq\AfterScaleFilter")){
-			throw new \InvalidArgumentException("\Pupiq\ImageScaler::appendAfterScaleFilter(): filter must be a \Pupiq\AfterScaleFilter");
+		if(!is_a($filter,"\Pupiq\ImageScaler\AfterScaleFilter")){
+			throw new \InvalidArgumentException("\Pupiq\ImageScaler::appendAfterScaleFilter(): filter must be a \Pupiq\ImageScaler\AfterScaleFilter");
 		}
 		$this->_AfterScaleFilters[] = $filter;
 	}
 
 	function appendAfterSaveFilter($filter){
-		if(!is_a($filter,"\Pupiq\AfterSaveFilter")){
-			throw new \InvalidArgumentException("\Pupiq\ImageScaler::appendAfterSaveFilter(): filter must be a \Pupiq\AfterSaveFilter");
+		if(!is_a($filter,"\Pupiq\ImageScaler\AfterSaveFilter")){
+			throw new \InvalidArgumentException("\Pupiq\ImageScaler::appendAfterSaveFilter(): filter must be a \Pupiq\ImageScaler\AfterSaveFilter");
 		}
 		$this->_AfterSaveFilters[] = $filter;
 	}

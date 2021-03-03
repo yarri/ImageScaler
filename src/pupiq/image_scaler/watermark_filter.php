@@ -1,5 +1,5 @@
 <?php
-namespace Pupiq;
+namespace Pupiq\ImageScaler;
 
 class WatermarkFilter extends AfterScaleFilter {
 
@@ -35,7 +35,7 @@ class WatermarkFilter extends AfterScaleFilter {
 		$height = $imagick->getImageHeight();
 
 		$wi_filename = $this->getWatermarkImageFilename();
-		$wi = new ImageScaler($wi_filename);
+		$wi = new \Pupiq\ImageScaler($wi_filename);
 		$wi->setOrientation(0);
 		$wi_width = $wi->getImageWidth();
 		$wi_height = $wi->getImageHeight();
