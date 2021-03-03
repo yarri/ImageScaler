@@ -99,9 +99,13 @@ class ImageScaler {
 		$this->_AfterSaveFilters[] = $filter;
 	}
 
-	function scaleTo($width,$height = null,$options = array()){
-		$this->_Imagick = null;
-
+	/**
+	 * Determines missing height and fulfills all the scaling options.
+	 *
+	 *	list($width,$height,$options) = $scaler->prepareScalingData(100);
+	 *	list($width,$height,$options) = $scaler->prepareScalingData(800,600,["crop" => true]);
+	 */
+	function prepareScalingData($width,$height = null,$options = array()){
 		if(is_array($height)){
 			$options = $height;
 			$height = null;
@@ -148,7 +152,6 @@ class ImageScaler {
 			"background_color" => in_array($options["output_format"],array("png","webp")) ? "transparent" : "#ffffff"
 		);
 
-		$this->_Options = $options;
 
 		if($options["keep_aspect"]){
 			$current_width = $this->getImageWidth($orientation);
@@ -165,7 +168,7 @@ class ImageScaler {
 			}
 
 			unset($options["keep_aspect"]);
-			return $this->scaleTo((int)$new_width,(int)$new_height,$options);
+			return $this->prepareScalingData((int)$new_width,(int)$new_height,$options);
 		}
 
 		if($options["crop"]){
@@ -219,7 +222,8 @@ class ImageScaler {
 			var_dump($options);
 			exit;// */
 
-			return $this->scaleTo($width,$height,$options);
+
+			return $this->prepareScalingData($width,$height,$options);
 		}
 
 		if(!isset($options["sharpen_image"])){
@@ -230,6 +234,17 @@ class ImageScaler {
 				$width<=(($options["width"] / 100.0) * (100.0 - $threshold_percent)) &&
 				$height<=(($options["height"] / 100.0) * (100.0 - $threshold_percent));
 		}
+
+		return array($width,$height,$options);
+	}
+
+	function scaleTo($width,$height = null,$options = array()){
+		list($width,$height,$options) = $this->prepareScalingData($width,$height,$options);
+
+		$orientation = $this->getOrientation();
+
+		$this->_Imagick = null;
+		$this->_Options = $options;
 
 		$filename = $this->getFileName();
 		

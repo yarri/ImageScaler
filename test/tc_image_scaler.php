@@ -60,6 +60,47 @@ class TcImageScaler extends TcBase {
 		unlink($output_filename);
 	}
 
+	function test_prepareScalingData(){
+		$is = new ImageScaler(__DIR__."/images/dungeon_master.png");
+		
+		list($width,$heigh,$options) = $is->prepareScalingData("100");
+		$this->assertEquals(100,$width);
+		$this->assertEquals(100,$heigh);
+
+		list($width,$heigh,$options) = $is->prepareScalingData("100",array("keep_aspect" => true));
+		$this->assertEquals(100,$width);
+		$this->assertEquals(62,$heigh);
+		$this->assertEquals(0,$options["x"]);
+		$this->assertEquals(0,$options["y"]);
+		$this->assertEquals(575,$options["width"]);
+		$this->assertEquals(359,$options["height"]);
+
+		list($width,$heigh,$options) = $is->prepareScalingData("100",array("crop" => true));
+		$this->assertEquals(100,$width);
+		$this->assertEquals(100,$heigh);
+		$this->assertEquals(107,$options["x"]);
+		$this->assertEquals(0,$options["y"]);
+		$this->assertEquals(359,$options["width"]);
+		$this->assertEquals(359,$options["height"]);
+
+		// The default background_color...
+
+		// ... is transparent for png images
+		$is = new ImageScaler(__DIR__."/images/dungeon_master.png");
+		list($width,$heigh,$options) = $is->prepareScalingData(100);
+		$this->assertEquals("transparent",$options["background_color"]);
+
+		// ... is #ffffff for jpeg images
+		$is = new ImageScaler(__DIR__."/images/pigeon.jpg");
+		list($width,$heigh,$options) = $is->prepareScalingData(100);
+		$this->assertEquals("#ffffff",$options["background_color"]);
+
+		// ... is transparent for webp images
+		$is = new ImageScaler(__DIR__."/images/penguin.webp");
+		list($width,$heigh,$options) = $is->prepareScalingData(100);
+		$this->assertEquals("transparent",$options["background_color"]);
+	}
+
 	function test_not_image(){
 		$exeption_thrown = false;
 		try {
