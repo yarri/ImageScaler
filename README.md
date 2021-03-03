@@ -79,14 +79,14 @@ Typical usages
 Filters
 -------
 
-Image processing can be affected using filters. There are two types of filters.
+Image processing can be affected by the use of filters. There are two types of filters.
 
 * **After scale filters**<br>
   These filters are executed right after the scaling. The Imagick object is passed to them.<br>
   After scaling filter must be an instance of *Pupiq\ImageScaler\AfterScaleFilter*
 * **After save filters**<br>
   These filters are executed right after the saving image to to the output file. The filename is passed to them.<br>
-  After saving filters must be an instance of *Pupiq\ImageScaler\AfterSaveFilter*
+  After save filters must be an instance of *Pupiq\ImageScaler\AfterSaveFilter*
 
 In both types of filter, details about the desired transformation are also passed to them.
 
