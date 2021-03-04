@@ -105,16 +105,31 @@ class ImageScaler {
 	 *	list($width,$height,$options) = $scaler->prepareScalingData(100);
 	 *	list($width,$height,$options) = $scaler->prepareScalingData(800,600,["crop" => true]);
 	 */
-	function prepareScalingData($width,$height = null,$options = array()){
+	function prepareScalingData($width = null,$height = null,$options = array()){
+		if(is_array($width)){
+			$options = $width;
+			$width = null;
+		}
 		if(is_array($height)){
 			$options = $height;
 			$height = null;
 		}
-		if(!isset($height)){ $height = $width; }
 		$options += array(
 			"orientation" => $this->getOrientation(), // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 		);
 		$orientation = $options["orientation"];
+
+		if(is_null($width) && is_null($height)){
+			$width = $this->getImageWidth($orientation);
+			$height = $this->getImageHeight($orientation);
+		}elseif(is_null($width) || is_null($height)){
+			$ratio = $this->getImageWidth($orientation) / $this->getImageHeight($orientation);
+			if(is_null($width)){
+				$width = round($height * $ratio);
+			}else{
+				$height = round($width / $ratio);
+			}
+		}
 		
 		$output_formats = array(
 			"image/jpeg" => "jpeg",
@@ -238,7 +253,7 @@ class ImageScaler {
 		return array($width,$height,$options);
 	}
 
-	function scaleTo($width,$height = null,$options = array()){
+	function scaleTo($width = null,$height = null,$options = array()){
 		list($width,$height,$options) = $this->prepareScalingData($width,$height,$options);
 
 		$orientation = $this->getOrientation();

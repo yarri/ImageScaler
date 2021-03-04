@@ -63,11 +63,41 @@ class TcImageScaler extends TcBase {
 	function test_prepareScalingData(){
 		$is = new ImageScaler(__DIR__."/images/dungeon_master.png");
 		
-		list($width,$heigh,$options) = $is->prepareScalingData("100");
+		list($width,$heigh,$options) = $is->prepareScalingData(100);
 		$this->assertEquals(100,$width);
+		$this->assertEquals(62,$heigh);
+
+		list($width,$heigh,$options) = $is->prepareScalingData(100,array("orientation" => 1));
+		$this->assertEquals(100,$width);
+		$this->assertEquals(160,$heigh);
+
+		list($width,$heigh,$options) = $is->prepareScalingData(null,100);
+		$this->assertEquals(160,$width);
 		$this->assertEquals(100,$heigh);
 
-		list($width,$heigh,$options) = $is->prepareScalingData("100",array("keep_aspect" => true));
+		// enlargement
+		list($width,$heigh,$options) = $is->prepareScalingData(1000);
+		$this->assertEquals(1000,$width);
+		$this->assertEquals(624,$heigh);
+
+		list($width,$heigh,$options) = $is->prepareScalingData(101,102);
+		$this->assertEquals(101,$width);
+		$this->assertEquals(102,$heigh);
+
+		// retaining the original dimensions
+		list($width,$heigh,$options) = $is->prepareScalingData(null,null);
+		$this->assertEquals(575,$width);
+		$this->assertEquals(359,$heigh);
+		//
+		list($width,$heigh,$options) = $is->prepareScalingData();
+		$this->assertEquals(575,$width);
+		$this->assertEquals(359,$heigh);
+		//
+		list($width,$heigh,$options) = $is->prepareScalingData(array("orientation" => 1));
+		$this->assertEquals(359,$width);
+		$this->assertEquals(575,$heigh);
+
+		list($width,$heigh,$options) = $is->prepareScalingData(100,100,array("keep_aspect" => true));
 		$this->assertEquals(100,$width);
 		$this->assertEquals(62,$heigh);
 		$this->assertEquals(0,$options["x"]);
@@ -75,7 +105,15 @@ class TcImageScaler extends TcBase {
 		$this->assertEquals(575,$options["width"]);
 		$this->assertEquals(359,$options["height"]);
 
-		list($width,$heigh,$options) = $is->prepareScalingData("100",array("crop" => true));
+		list($width,$heigh,$options) = $is->prepareScalingData(100,50,array("keep_aspect" => true));
+		$this->assertEquals(80,$width);
+		$this->assertEquals(50,$heigh);
+		$this->assertEquals(0,$options["x"]);
+		$this->assertEquals(0,$options["y"]);
+		$this->assertEquals(575,$options["width"]);
+		$this->assertEquals(359,$options["height"]);
+
+		list($width,$heigh,$options) = $is->prepareScalingData(100,100,array("crop" => true));
 		$this->assertEquals(100,$width);
 		$this->assertEquals(100,$heigh);
 		$this->assertEquals(107,$options["x"]);

@@ -56,24 +56,28 @@ There are plenty of options in method scaleTo(). Some of them are against each o
 Typical usages
 --------------
 
-    // scale image to 200px width
+    // Scale image to 200px width.
     $scaler->scaleTo(200);
 
-    // scale image to size 200x200
-    // original image will be inscribed into 200x200 box
-    // some parts of the output image may be padded with the background_color
-    $scaler->scaleTo(200,200);
+    // Scale image to 200px height.
+    $scaler->scaleTo(null,200);
 
-    // transform original image into max 200px width and max 200px height
-    // so the final width or the final height may be lower than 200px
+    // Scale image to size 200x200.
+    // Original image will be inscribed into 200x200 box.
+    // There will be no aspect ratio distortion,
+    // but rather some parts of the output image may be padded with the background_color.
+    $scaler->scaleTo(200,200,["background_color" => "#ffffff"]);
+
+    // Transform original image into max 200px width and max 200px height
+    // so either the final width or the final height may be lower than 200px.
     $scaler->scaleTo(200,200,["keep_aspect" => true]);
 
-    // transform and crop the original image into 200x200 box
+    // Transform and crop the original image into 200x200 box.
     $scaler->scaleTo(200,200,["crop" => true]);
 
-    // transform and crop the original image into 200x200 box
-    // and preserve the top part of the image
-    // this is a great option e.g. for magazine covers
+    // Transform and crop the original image into 200x200 box
+    // and preserve the top part of the image.
+    // This is a great option e.g. for magazine or book covers.
     $scaler->scaleTo(200,200,["crop" => "top"]);
 
 Filters
