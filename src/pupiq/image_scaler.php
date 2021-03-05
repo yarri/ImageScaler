@@ -354,7 +354,7 @@ class ImageScaler {
 		}
 
 		if($options["output_format"]=="webp"){
-			// TODO: $background->setImageCompressionQuality($options["compression_quality"]);
+			$background->setImageCompressionQuality($options["compression_quality"]);
 		}
 
 		$this->_Imagick = $background;
