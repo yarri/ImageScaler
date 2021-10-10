@@ -60,6 +60,14 @@ class TcImageScaler extends TcBase {
 		unlink($output_filename);
 	}
 
+	function test_automatic_orientation_detecting(){
+		$is = new ImageScaler(__DIR__ . "/images/pigeon.jpg");
+		$this->assertEquals(0,$is->getOrientation());
+
+		$is = new ImageScaler(__DIR__ . "/images/valachia.jpg");
+		$this->assertEquals(3,$is->getOrientation());
+	}
+
 	function test_prepareScalingData(){
 		$is = new ImageScaler(__DIR__."/images/dungeon_master.png");
 		

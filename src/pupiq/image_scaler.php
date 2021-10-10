@@ -5,7 +5,7 @@ use \Imagick, \ImagickPixel, \Files;
 
 class ImageScaler {
 
-	protected $_Orientation = 0; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
+	protected $_Orientation = null; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
 	protected $_MimeType;
 	protected $_FileName;
@@ -67,7 +67,42 @@ class ImageScaler {
 		$this->_Orientation = $orientation;
 	}
 
-	function getOrientation(){ return $this->_Orientation; }
+	function getOrientation(){
+		if(is_null($this->_Orientation)){
+			$this->_Orientation = $this->_determineOrientation();
+		}
+		return $this->_Orientation;
+	}
+
+	protected function _determineOrientation(){
+		$orientation = 0;
+
+		if(!preg_match('/^image\/jpe?g/',$this->getMimeType())){ // only jpegs have exif data
+			return $orientation;
+		}
+
+		if(!function_exists("exif_read_data")){ return $orientation; }
+
+		$exif = @exif_read_data($this->getFileName()); // Sometimes an error occurs (e.g. Illegal IFD size)
+		if($exif){
+			$_orient = 0;
+			isset($exif["IFD0"]["Orientation"]) && ($_orient = $exif["IFD0"]["Orientation"]);
+			isset($exif["Orientation"]) && ($_orient = $exif["Orientation"]);
+			switch($_orient){
+				case 3: // 180 rotate left
+					$orientation = 2;
+					break;
+				case 6: // 90 rotate right
+					$orientation = 1;
+					break;
+				case 8: // 90 rotate left
+					$orientation = 3;
+					break;		
+			}
+		}
+
+		return $orientation;
+	}
 
 	function getImageWidth($orientation = null){
 		if(is_null($orientation)){ $orientation = $this->getOrientation(); }
