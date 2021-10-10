@@ -2,6 +2,11 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.4] - 2021-10-10
+
+- If just the width or just the height is given, the other size is automatically calculated accordingly
+- Automatic detection of an image orientation from exif data
+
 ## [0.3] - 2021-03-03
 
 - Filters moved into namespace Pupiq\ImageScaler (originally they were in namespace Pupiq) - BC BREAK!
