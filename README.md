@@ -20,6 +20,9 @@ Basic Usage
     // saving to output file
     $scaler->saveTo("/path/to/output_file.jpg");
 
+    // or saving to string
+    $image = $scaler->saveToString();
+
     // checking thre result
     $scaler_out = new Pupiq\ImageScaler("/path/to/output_file.jpg");
     $scaler_out->getImageWidth(); // 300
