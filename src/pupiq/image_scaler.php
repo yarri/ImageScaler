@@ -61,6 +61,14 @@ class ImageScaler {
 		}
 	}
 
+	function saveToString(){
+		$filename = \Files::GetTempFilename();
+		$this->saveTo($filename);
+		$out = \Files::GetFileContent($filename);
+		\Files::Unlink($filename);
+		return $out;
+	}
+
 	function setOrientation($orientation){
 		$orientation = (int)$orientation;
 		$orientation = abs($orientation % 4);
