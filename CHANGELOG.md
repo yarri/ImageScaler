@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.5] - 2021-10-23
+
+- Added method ImageScaler::saveToString()
+
 ## [0.4] - 2021-10-10
 
 - If just the width or just the height is given, the other size is automatically calculated accordingly
