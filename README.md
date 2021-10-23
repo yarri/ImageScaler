@@ -1,6 +1,8 @@
 ImageScaler
 ===========
 
+[![Build Status](https://app.travis-ci.com/yarri/ImageScaler.svg?branch=master)](https://app.travis-ci.com/yarri/ImageScaler)
+
 Handy tool for image resizing. Produces well optimized images for web.
 
 Basic Usage
@@ -19,9 +21,8 @@ Basic Usage
 
     // saving to output file
     $scaler->saveTo("/path/to/output_file.jpg");
-
     // or saving to string
-    $image = $scaler->saveToString();
+    // $image = $scaler->saveToString();
 
     // checking thre result
     $scaler_out = new Pupiq\ImageScaler("/path/to/output_file.jpg");
