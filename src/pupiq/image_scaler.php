@@ -418,7 +418,7 @@ class ImageScaler {
 			$mime_type = \Files::DetermineFileType($filename);
 		}else{
 			try {
-			$imagick = new Imagick();
+				$imagick = new Imagick();
 				if($imagick->readImage($filename)){
 					$width = $imagick->getImageWidth();
 					$height = $imagick->getImageHeight();
