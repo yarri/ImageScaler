@@ -417,13 +417,17 @@ class ImageScaler {
 			$height = $size[1];
 			$mime_type = \Files::DetermineFileType($filename);
 		}else{
+			try {
 			$imagick = new Imagick();
-			if($imagick->readImage($filename)){
-				$width = $imagick->getImageWidth();
-				$height = $imagick->getImageHeight();
-				$mime_type = $imagick->getImageMimeType();
+				if($imagick->readImage($filename)){
+					$width = $imagick->getImageWidth();
+					$height = $imagick->getImageHeight();
+					$mime_type = $imagick->getImageMimeType();
+				}
+				unset($imagick);
+			} catch (ImagickException $e) {
+				// ... this is perfectly ok
 			}
-			unset($imagick);
 		}
 
 		if(is_null($width)){
