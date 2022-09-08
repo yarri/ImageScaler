@@ -397,8 +397,14 @@ class ImageScaler {
 			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
 		}
 
-		if(in_array($options["output_format"],["webp","avif"])){
+		if($options["output_format"]=="webp"){
 			$background->setImageCompressionQuality($options["compression_quality"]);
+		}
+
+		if($options["output_format"]=="avif"){
+			$compression_quality = $options["compression_quality"] - 60; // 85 -> 25
+			$compression_quality = max($compression_quality,20);
+			$background->setCompressionQuality($compression_quality); // not setImageCompressionQuality :)
 		}
 
 		$this->_Imagick = $background;
