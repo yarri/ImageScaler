@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.6] - 2022-09-08
+
+* 2561430 - Added support for AVIF images
+
 ## [0.5] - 2021-10-23
 
 - Added method ImageScaler::saveToString()
