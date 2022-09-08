@@ -16,7 +16,7 @@ php:
 
 before_install:
   - sudo apt-get update
-  - sudo apt-get install pngquant libmagickwand-dev php-pear
+  - sudo apt-get install pngquant libmagickwand-dev libheif-dev php-pear
   - echo | sudo pecl install imagick
   - echo 'extension=imagick.so' | sudo tee --append `php --ini | grep 'Loaded Configuration File' | sed 's/^.*:\s*//'` > /dev/null
   - php -i
