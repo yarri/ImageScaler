@@ -2,16 +2,13 @@
 
 os: linux
 
-# Partner Queue Solution, no credits are consumed
-arch: ppc64le
+arch: x86_64
 
 dist: jammy
 
 language: php
 
 php:
-  - 7.4
-  - 8.0
   - 8.1
 
 before_install:
