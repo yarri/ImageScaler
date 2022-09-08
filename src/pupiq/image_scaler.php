@@ -180,6 +180,7 @@ class ImageScaler {
 			"image/png" => "png",
 			"image/gif" => "gif",
 			"image/webp" => "webp",
+			"image/avif" => "avif",
 		);
 
 		$mime_type = $this->getMimeType();
@@ -200,14 +201,14 @@ class ImageScaler {
 			"compression_quality" => 85,
 			"auto_convert_cmyk_to_rgb" => true,
 
-			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png", "webp"
+			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png", "webp", "avif"
 		);
 
 		// gif -> png
 		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		$options += array(
-			"background_color" => in_array($options["output_format"],array("png","webp")) ? "transparent" : "#ffffff"
+			"background_color" => in_array($options["output_format"],array("png","webp","avif")) ? "transparent" : "#ffffff"
 		);
 
 
@@ -359,11 +360,11 @@ class ImageScaler {
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
-		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
+		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif"
 		if(!$stat){
 			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
 		}
-		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp"
+		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif"
 
 		// neni treba delat, pokud se kopiruje cely obrazek...
 		if($options["x"]!=0 || $options["y"]!=0 || $options["width"]!=$this->getImageWidth($orientation) || $options["height"]!=$this->getImageHeight($orientation)){
@@ -396,7 +397,7 @@ class ImageScaler {
 			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
 		}
 
-		if($options["output_format"]=="webp"){
+		if(in_array($options["output_format"],["webp","avif"])){
 			$background->setImageCompressionQuality($options["compression_quality"]);
 		}
 
@@ -432,6 +433,10 @@ class ImageScaler {
 
 		if($mime_type == "image/x-webp"){
 			$mime_type = "image/webp";
+		}
+
+		if($mime_type == "image/x-heic"){
+			$mime_type = "image/avif";
 		}
 
 		return array($width,$height,$mime_type);
