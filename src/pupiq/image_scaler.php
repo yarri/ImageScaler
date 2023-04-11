@@ -37,7 +37,7 @@ class ImageScaler {
 			throw new \Exception("Pupiq\ImageScaler: dependency not met: class Imagick doesn't exist");
 		}
 		if(!defined("Imagick::ALPHACHANNEL_REMOVE")){
-			throw new \Exception("Pupiq\ImageScaler: defined not met: constant Imagick::ALPHACHANNEL_REMOVE doesn't exist");
+			throw new \Exception("Pupiq\ImageScaler: dependency not met: constant Imagick::ALPHACHANNEL_REMOVE doesn't exist");
 		}
 	}
 
