@@ -181,6 +181,7 @@ class ImageScaler {
 			"image/gif" => "gif",
 			"image/webp" => "webp",
 			"image/avif" => "avif",
+			"image/heic" => "heic",
 		);
 
 		$mime_type = $this->getMimeType();
@@ -208,7 +209,7 @@ class ImageScaler {
 		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		$options += array(
-			"background_color" => in_array($options["output_format"],array("png","webp","avif")) ? "transparent" : "#ffffff"
+			"background_color" => in_array($options["output_format"],array("png","webp","avif","heic")) ? "transparent" : "#ffffff"
 		);
 
 
@@ -360,11 +361,11 @@ class ImageScaler {
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
-		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif"
+		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 		if(!$stat){
 			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
 		}
-		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif"
+		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 
 		// neni treba delat, pokud se kopiruje cely obrazek...
 		if($options["x"]!=0 || $options["y"]!=0 || $options["width"]!=$this->getImageWidth($orientation) || $options["height"]!=$this->getImageHeight($orientation)){
@@ -407,6 +408,12 @@ class ImageScaler {
 			$background->setCompressionQuality($compression_quality); // not setImageCompressionQuality :)
 		}
 
+		if($options["output_format"]=="heic"){
+			$compression_quality = $options["compression_quality"] - 60; // 85 -> 25
+			$compression_quality = max($compression_quality,20);
+			$background->setCompressionQuality($compression_quality); // not setImageCompressionQuality :)
+		}
+
 		$this->_Imagick = $background;
 
 		foreach($this->_AfterScaleFilters as $filter){
@@ -442,7 +449,7 @@ class ImageScaler {
 		}
 
 		if($mime_type == "image/x-heic"){
-			$mime_type = "image/avif";
+			$mime_type = "image/heic";
 		}
 
 		return array($width,$height,$mime_type);
