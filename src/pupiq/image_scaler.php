@@ -209,6 +209,9 @@ class ImageScaler {
 		// gif -> png
 		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
+		// jpg -> jpeg
+		$options["output_format"] = $options["output_format"]=="jpg" ? "jpeg" : $options["output_format"];
+
 		$options += array(
 			"background_color" => in_array($options["output_format"],array("png","webp","avif","heic")) ? "transparent" : "#ffffff"
 		);
