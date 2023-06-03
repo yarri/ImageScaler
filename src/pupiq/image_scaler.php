@@ -182,6 +182,7 @@ class ImageScaler {
 			"image/webp" => "webp",
 			"image/avif" => "avif",
 			"image/heic" => "heic",
+			"image/heif" => "heic",
 		);
 
 		$mime_type = $this->getMimeType();
@@ -361,6 +362,11 @@ class ImageScaler {
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
+		// Some HEIC images appeared in the YCbCr colorspace
+		if($imagick->getImageColorspace()==Imagick::COLORSPACE_YCBCR){
+			$imagick->transformImageColorspace(Imagick::COLORSPACE_SRGB);
+		}
+
 		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 		if(!$stat){
 			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
@@ -450,6 +456,10 @@ class ImageScaler {
 
 		if($mime_type == "image/x-heic"){
 			$mime_type = "image/heic";
+		}
+
+		if($mime_type == "image/x-heif"){
+			$mime_type = "image/heif";
 		}
 
 		return array($width,$height,$mime_type);
