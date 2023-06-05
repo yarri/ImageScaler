@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.7] - 2023-06-06
+
+* Added support for HEIC images
+
 ## [0.6] - 2022-09-08
 
 * 2561430 - Added support for AVIF images
