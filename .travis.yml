@@ -5,7 +5,7 @@ os: linux
 # Partner Queue Solution, no credits are consumed
 arch: ppc64le
 
-dist: hirsute
+dist: focal
 
 language: php
 
