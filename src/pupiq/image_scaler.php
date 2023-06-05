@@ -5,6 +5,9 @@ use \Imagick, \ImagickPixel, \Files;
 
 class ImageScaler {
 
+	protected static $SUPPORTED_OUTPUT_FORMATS = ["jpeg", "png", "webp", "avif", "heic"];
+	protected static $FORMATS_WITH_TRANSPARENCY = ["png","webp","avif"];
+
 	protected $_Orientation = null; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
 	protected $_MimeType;
@@ -206,16 +209,21 @@ class ImageScaler {
 			"output_format" => isset($output_formats[$mime_type]) ? $output_formats[$mime_type] : "jpeg", // "jpeg", "png", "webp", "avif"
 		);
 
+		$options["output_format"] = strtolower($options["output_format"]);
+
 		// gif -> png
 		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		// jpg -> jpeg
 		$options["output_format"] = $options["output_format"]=="jpg" ? "jpeg" : $options["output_format"];
 
-		$options += array(
-			"background_color" => in_array($options["output_format"],array("png","webp","avif")) ? "transparent" : "#ffffff"
-		);
+		if(!in_array($options["output_format"],self::$SUPPORTED_OUTPUT_FORMATS)){
+			throw new \InvalidArgumentException("Output format $options[output_format] is not supported");
+		}
 
+		$options += array(
+			"background_color" => in_array($options["output_format"],self::$FORMATS_WITH_TRANSPARENCY) ? "transparent" : "#ffffff"
+		);
 
 		if($options["keep_aspect"]){
 			$current_width = $this->getImageWidth($orientation);

@@ -169,4 +169,18 @@ class TcImageScaler extends TcBase {
 		}
 		$this->assertEquals(true,$exeption_thrown);
 	}
+
+	function test_invalid_output_format(){
+		$exeption_thrown = false;
+		$exeption_msg = "";
+		try {
+			$is = new ImageScaler(__DIR__."/images/pigeon.jpg");
+			$is->scaleTo(100,100,["output_format" => "xcf"]);
+		} catch(Exception $e) {
+			$exeption_thrown = true;
+			$exeption_msg = $e->getMessage();
+		}
+		$this->assertEquals(true,$exeption_thrown);
+		$this->assertEquals("Output format xcf is not supported",$exeption_msg);
+	}
 }
