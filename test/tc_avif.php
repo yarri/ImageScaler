@@ -2,6 +2,12 @@
 class TcAvif extends TcBase {
 
 	function test(){
+		if(!in_array("AVIF",Imagick::queryFormats())){
+			fwrite(STDERR, "!!! There is no AVIF support in this Imagick installation");
+			$this->assertTrue(true);
+			return;
+		}
+
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/penguin.avif");
 
 		$this->assertEquals("image/avif",$scaler->getMimeType());

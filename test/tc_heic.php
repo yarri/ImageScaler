@@ -2,6 +2,12 @@
 class TcHeic extends TcBase {
 
 	function test(){
+		if(!in_array("HEIC",Imagick::queryFormats())){
+			fwrite(STDERR, "!!! There is no HEIC support in this Imagick installation");
+			$this->assertTrue(true);
+			return;
+		}
+
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/penguin.heic");
 
 		$this->assertEquals("image/heic",$scaler->getMimeType());
