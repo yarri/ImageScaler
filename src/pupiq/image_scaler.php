@@ -443,18 +443,19 @@ class ImageScaler {
 	protected function _getimagesize($filename){
 		$width = $height = $mime_type = null;
 
+		$imagick = new Imagick();
+		if($imagick->readImage($filename)){
+			$width = $imagick->getImageWidth();
+			$height = $imagick->getImageHeight();
+			$mime_type = $imagick->getImageMimeType();
+		}
+		unset($imagick);
+
+		// Hmmm... this gives a better mime type detection
 		if($size = getimagesize($filename)){
-			$width = $size[0];
-			$height = $size[1];
+			//$width = $size[0];
+			//$height = $size[1];
 			$mime_type = \Files::DetermineFileType($filename);
-		}else{
-			$imagick = new Imagick();
-			if($imagick->readImage($filename)){
-				$width = $imagick->getImageWidth();
-				$height = $imagick->getImageHeight();
-				$mime_type = $imagick->getImageMimeType();
-			}
-			unset($imagick);
 		}
 
 		if(is_null($width)){
