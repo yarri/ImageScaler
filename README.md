@@ -24,7 +24,7 @@ Basic Usage
     // or saving to string
     // $image = $scaler->saveToString();
 
-    // checking thre result
+    // checking the result
     $scaler_out = new Pupiq\ImageScaler("/path/to/output_file.jpg");
     $scaler_out->getImageWidth(); // 300
     $scaler_out->getImageHeight(); // 169
