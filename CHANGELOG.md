@@ -2,6 +2,11 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.7.1] - 2023-08-24
+
+* 5436f05 - `ImageScaler::_getimagesize()` tuned
+* 66b8d1d - A InvalidArgumentException is thrown when an unsupported output format is requested
+
 ## [0.7] - 2023-06-06
 
 * Added support for HEIC images
