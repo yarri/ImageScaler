@@ -178,7 +178,7 @@ class ImageScaler {
 				$height = round($width / $ratio);
 			}
 		}
-		
+
 		$output_formats = array(
 			"image/jpeg" => "jpeg",
 			"image/jpg" => "jpeg",
@@ -259,7 +259,7 @@ class ImageScaler {
 
 			// pozadovany obrazek je sirsi
 			if($wished_ratio>$current_ratio){
-				$crop_height = $image_height * ($current_ratio / $wished_ratio);
+				$crop_height = floor($image_height * ($current_ratio / $wished_ratio));
 
 				$y = floor((($image_height - $crop_height) / 2) - 1);
 
@@ -274,7 +274,7 @@ class ImageScaler {
 
 			// obrazek je vyssi
 			if($wished_ratio<$current_ratio){
-				$crop_width = $image_width * ($wished_ratio / $current_ratio);
+				$crop_width = floor($image_width * ($wished_ratio / $current_ratio));
 				$x = floor((($image_width - $crop_width) / 2) - 1);
 			}
 
