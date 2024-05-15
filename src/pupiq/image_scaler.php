@@ -5,7 +5,7 @@ use \Imagick, \ImagickPixel, \Files;
 
 class ImageScaler {
 
-	const VERSION = "0.7.1";
+	const VERSION = "0.7.2";
 
 	protected static $SUPPORTED_OUTPUT_FORMATS = ["jpeg", "png", "webp", "avif", "heic"];
 	protected static $FORMATS_WITH_TRANSPARENCY = ["png","webp","avif"];

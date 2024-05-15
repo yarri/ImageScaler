@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.7.2] - 2024-05-15
+
+* e991bde - Fix - float to int conversion
+
 ## [0.7.1] - 2023-08-24
 
 * 5436f05 - `ImageScaler::_getimagesize()` tuned
