@@ -7,8 +7,8 @@ class ImageScaler {
 
 	const VERSION = "0.7.2";
 
-	protected static $SUPPORTED_OUTPUT_FORMATS = ["jpeg", "png", "webp", "avif", "heic"];
-	protected static $FORMATS_WITH_TRANSPARENCY = ["png","webp","avif"];
+	protected static $SUPPORTED_OUTPUT_FORMATS = ["jpeg", "png", "gif", "webp", "avif", "heic"];
+	protected static $FORMATS_WITH_TRANSPARENCY = ["png","webp","avif", "gif"];
 
 	protected $_Orientation = null; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
@@ -214,7 +214,7 @@ class ImageScaler {
 		$options["output_format"] = strtolower($options["output_format"]);
 
 		// gif -> png
-		$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
+		//$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		// jpg -> jpeg
 		$options["output_format"] = $options["output_format"]=="jpg" ? "jpeg" : $options["output_format"];
@@ -477,5 +477,19 @@ class ImageScaler {
 		}
 
 		return array($width,$height,$mime_type);
+	}
+
+	function _isAnimationGif(){
+		return \GifFrameExtractor\GifFrameExtractor::isAnimatedGif($this->_FileName);
+	}
+
+	function _extractGifFrames(){
+		$gfe = new \GifFrameExtractor\GifFrameExtractor();
+		$frames = $gfe->extract($this->_FileName);
+		$out = [];
+		foreach($frames as $frame){
+			$out[] = new ImageScaler\GifFrame($frame["image"],$frame["duration"]);
+		}
+		return $out;
 	}
 }
