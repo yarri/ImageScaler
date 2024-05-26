@@ -30,6 +30,9 @@ class TcGif extends TcBase {
 		$this->assertEquals(625,$scaler->getImageWidth());
 		$this->assertEquals(625,$scaler->getImageHeight());
 
+		$scaler->setOrientation(1);
+		$scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\GrayscaleFilter());
+
 		$scaler->scaleTo(100,100);
 		$outfile = Files::GetTempFilename();
 		$scaler->saveTo($outfile);
@@ -39,28 +42,29 @@ class TcGif extends TcBase {
 		$this->assertEquals(0,$scaler_out->getOrientation());
 		$this->assertEquals(100,$scaler_out->getImageWidth());
 		$this->assertEquals(100,$scaler_out->getImageHeight());
+		$this->assertTrue($scaler_out->_isAnimated());
 
 		unlink($outfile);
 	}
 
-	function test__isAnimatedGif(){
+	function test__isAnimated(){
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/animation.gif");
-		$this->assertEquals(true,$scaler->_isAnimationGif());
+		$this->assertEquals(true,$scaler->_isAnimated());
 
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.gif");
-		$this->assertEquals(false,$scaler->_isAnimationGif());
+		$this->assertEquals(false,$scaler->_isAnimated());
 
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
-		$this->assertEquals(false,$scaler->_isAnimationGif());
+		$this->assertEquals(false,$scaler->_isAnimated());
 	}
 
-	function test__extractGifFrames(){
+	function test__extractFrames(){
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/animation.gif");
-		$frames = $scaler->_extractGifFrames();
+		$frames = $scaler->_extractFrames();
 		$this->assertEquals(3,sizeof($frames));
 
-		$this->assertEquals(60,$frames[0]->getDuration());
-		$this->assertEquals(60,$frames[1]->getDuration());
-		$this->assertEquals(60,$frames[2]->getDuration());
+		$this->assertEquals(0.6,$frames[0]->getDuration());
+		$this->assertEquals(0.6,$frames[1]->getDuration());
+		$this->assertEquals(0.6,$frames[2]->getDuration());
 	}
 }

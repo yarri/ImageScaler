@@ -9,6 +9,18 @@ class ImageScaler {
 
 	protected static $SUPPORTED_OUTPUT_FORMATS = ["jpeg", "png", "gif", "webp", "avif", "heic"];
 	protected static $FORMATS_WITH_TRANSPARENCY = ["png","webp","avif", "gif"];
+	protected static $FORMATS_SUPPORTING_ANIMATIONS = ["gif"];
+
+	protected static $FORMATS = [
+		"image/jpeg" => "jpeg",
+		"image/jpg" => "jpeg",
+		"image/png" => "png",
+		"image/gif" => "gif",
+		"image/webp" => "webp",
+		"image/avif" => "avif",
+		"image/heic" => "heic",
+		"image/heif" => "heic",
+	];
 
 	protected $_Orientation = null; // 0,1,2,3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
@@ -59,7 +71,27 @@ class ImageScaler {
 			$this->scaleTo($this->getImageWidth(),$this->getImageHeight());
 		}
 
-		$this->_Imagick->writeImage($filename);
+		if(is_array($this->_Imagick)){
+			$frames = $this->_Imagick;
+			$tmp_files = [];
+			foreach($frames as $frame){
+				$imagick = $frame->getImagick();
+				$tmp_file = Files::GetTempFilename();
+				$tmp_files[] = $tmp_file;
+				$imagick->writeImage($tmp_file);
+			}
+			//$gc = new \GifCreator\AnimGif();
+			$gc = new \GifCreator\GifCreator();
+			$durations = array_map(function($frame){ return round($frame->getDuration() * 100.0); }, $frames);
+			$gc->create($tmp_files, $durations, 0);
+			$binary = $gc->getGif();
+			Files::WriteToFile($filename,$binary);
+			foreach($tmp_files as $tmp_file){
+				Files::Unlink($tmp_file);
+			}
+		}else{
+			$this->_Imagick->writeImage($filename);
+		}
 
 		foreach($this->_AfterSaveFilters as $filter){
 			$filter->process($filename,$this->_Options);
@@ -179,16 +211,7 @@ class ImageScaler {
 			}
 		}
 
-		$output_formats = array(
-			"image/jpeg" => "jpeg",
-			"image/jpg" => "jpeg",
-			"image/png" => "png",
-			"image/gif" => "gif",
-			"image/webp" => "webp",
-			"image/avif" => "avif",
-			"image/heic" => "heic",
-			"image/heif" => "heic",
-		);
+		$output_formats = static::$FORMATS;
 
 		$mime_type = $this->getMimeType();
 
@@ -333,6 +356,22 @@ class ImageScaler {
 
 		// sudo apt-get install php-imagick
 		//myAssert(class_exists("Imagick"));
+
+		// Animated images
+		$input_format = isset(static::$FORMATS[$this->getMimeType()]) ? static::$FORMATS[$this->getMimeType()] : null;
+		$output_format = $options["output_format"];
+		//
+		if(in_array($input_format,static::$FORMATS_SUPPORTING_ANIMATIONS) && in_array($output_format,static::$FORMATS_SUPPORTING_ANIMATIONS) && $this->_isAnimated()){
+			$frames = $this->_extractFrames();
+			foreach($frames as $frame){
+				$im = clone($this);
+				$im->_FileName = $frame->getTempFilename();
+				$imagick = $im->scaleTo($width,$height,$options);
+				$frame->setImagick($imagick);
+			}
+			$this->_Imagick = $frames;
+			return $frames;
+		}
 
 		$background_pixel = new ImagickPixel($options["background_color"]);
 
@@ -479,16 +518,16 @@ class ImageScaler {
 		return array($width,$height,$mime_type);
 	}
 
-	function _isAnimationGif(){
+	function _isAnimated(){
 		return \GifFrameExtractor\GifFrameExtractor::isAnimatedGif($this->_FileName);
 	}
 
-	function _extractGifFrames(){
+	function _extractFrames(){
 		$gfe = new \GifFrameExtractor\GifFrameExtractor();
 		$frames = $gfe->extract($this->_FileName);
 		$out = [];
 		foreach($frames as $frame){
-			$out[] = new ImageScaler\GifFrame($frame["image"],$frame["duration"]);
+			$out[] = new ImageScaler\GifFrame($frame["image"],$frame["duration"] / 100.0);
 		}
 		return $out;
 	}
