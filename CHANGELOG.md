@@ -2,6 +2,10 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.7.3] - 2024-05-27
+
+* Added support for GIF images, even animated
+
 ## [0.7.2] - 2024-05-15
 
 * e991bde - Fix - float to int conversion
