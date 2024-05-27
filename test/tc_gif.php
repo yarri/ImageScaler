@@ -1,6 +1,30 @@
 <?php
 class TcGif extends TcBase {
 
+	function test_transparency(){
+		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/transparent_200x200.gif");
+		$scaler->scaleTo(100,100);
+		$outfile_gif = Files::GetTempFilename();
+		$scaler->saveTo($outfile_gif);
+
+		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/transparent_200x200.gif");
+		$scaler->scaleTo(100,100,["background_color" => "#ffffff"]);
+		$outfile_gif_white = Files::GetTempFilename();
+		$scaler->saveTo($outfile_gif_white);
+
+		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/transparent_200x200.png");
+		$scaler->scaleTo(100,100);
+		$outfile_png = Files::GetTempFilename();
+		$scaler->saveTo($outfile_png);
+
+		$this->assertSameImages($outfile_gif,$outfile_png);
+		$this->assertNotSameImages($outfile_gif,$outfile_gif_white);
+
+		unlink($outfile_gif);
+		unlink($outfile_gif_white);
+		unlink($outfile_png);
+	}
+
 	function test(){
 		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.gif");
 
