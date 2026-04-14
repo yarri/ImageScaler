@@ -17,7 +17,7 @@ class TcBase extends TcSuperbase {
 		$this->assertNotEquals(0.0,round($result[1]*1000.0));
 	}
 
-	function tearDown(){
+	function _tearDown(){
 		Files::RecursiveUnlinkDir(TEMP);
 		Files::Mkdir(TEMP);
 	}
