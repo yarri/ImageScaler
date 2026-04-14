@@ -421,7 +421,7 @@ class ImageScaler {
 
 		$stat = $imagick->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 		if(!$stat){
-			throw new Exception("ImageScaler: Unable to set image format to $options[output_format]");
+			throw new \Exception("ImageScaler: Unable to set image format to $options[output_format]");
 		}
 		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 
