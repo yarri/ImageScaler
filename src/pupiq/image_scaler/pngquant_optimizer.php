@@ -22,7 +22,11 @@ class PngquantOptimizer extends AfterSaveFilter {
 		}
 		$filename_optimized = \Files::GetTempFilename("pngquant_optimizer_");
 		// prepinac --skip-if-larger nefungoval dobre na img.dumlatek.cz (nic se neulozilo a vratila se chyba 98)
-		$cmd = "$this->pngquant_binary --quality $this->quality_range --force $filename --output $filename_optimized";
+		$cmd = escapeshellarg($this->pngquant_binary)                                                                                                                                                                                                  
+			. " --quality " . escapeshellarg($this->quality_range)                                                                                                                                                                                  
+			. " --force " . escapeshellarg($filename)                                                                                                                                                                                                 
+			. " --output " . escapeshellarg($filename_optimized);
+
 		exec($cmd,$output,$ret_val);
 		if($ret_val){
 			trigger_error("PNG optimization command execution ($cmd) ended with error $ret_val");
