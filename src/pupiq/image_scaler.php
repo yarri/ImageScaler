@@ -269,8 +269,8 @@ class ImageScaler {
 		}
 
 		if($options["crop"]){
-			$image_width = $this->getImageWidth();
-			$image_height = $this->getImageHeight();
+			$image_width = $this->getImageWidth($orientation);
+			$image_height = $this->getImageHeight($orientation);
 
 			$wished_ratio = $width / $height;
 			$current_ratio = $image_width / $image_height;
