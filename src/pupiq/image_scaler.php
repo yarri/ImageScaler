@@ -427,10 +427,12 @@ class ImageScaler {
 
 		$_x = $_y = 0;
 		if($imagick->getImageHeight()<$background->getImageHeight()){
-			$_y = floor(($background->getImageHeight()-$imagick->getImageHeight()) / 2);
-		}elseif($imagick->getImageWidth()<$background->getImageWidth()){
-			$_x = floor(($background->getImageWidth()-$imagick->getImageWidth()) / 2);
+			$_y = floor(($background->getImageHeight() - $imagick->getImageHeight()) / 2);
 		}
+		if($imagick->getImageWidth()<$background->getImageWidth()){
+			$_x = floor(($background->getImageWidth() - $imagick->getImageWidth()) / 2);
+		}
+
 		$background->compositeImage($imagick->getImage(), Imagick::COMPOSITE_COPY, $_x, $_y);
 
 		$options["strip_meta_data"] && $background->stripImage();
@@ -448,13 +450,7 @@ class ImageScaler {
 			$background->setImageCompressionQuality($options["compression_quality"]);
 		}
 
-		if($options["output_format"]=="avif"){
-			$compression_quality = $options["compression_quality"] - 60; // 85 -> 25
-			$compression_quality = max($compression_quality,20);
-			$background->setCompressionQuality($compression_quality); // not setImageCompressionQuality :)
-		}
-
-		if($options["output_format"]=="heic"){
+		if(in_array($options["output_format"],["avif","heic"])){
 			$compression_quality = $options["compression_quality"] - 60; // 85 -> 25
 			$compression_quality = max($compression_quality,20);
 			$background->setCompressionQuality($compression_quality); // not setImageCompressionQuality :)
