@@ -80,7 +80,6 @@ class ImageScaler {
 				$tmp_files[] = $tmp_file;
 				$imagick->writeImage($tmp_file);
 			}
-			//$gc = new \GifCreator\AnimGif();
 			$gc = new \GifCreator\GifCreator();
 			$durations = array_map(function($frame){ return round($frame->getDuration() * 100.0); }, $frames);
 			$gc->create($tmp_files, $durations, 0);
@@ -235,9 +234,6 @@ class ImageScaler {
 		);
 
 		$options["output_format"] = strtolower($options["output_format"]);
-
-		// gif -> png
-		//$options["output_format"] = in_array($options["output_format"],["png","gif"]) ? "png" : $options["output_format"];
 
 		// jpg -> jpeg
 		$options["output_format"] = $options["output_format"]=="jpg" ? "jpeg" : $options["output_format"];
