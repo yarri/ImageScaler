@@ -2,6 +2,11 @@
 
 All notable changes to \\Pupuq\\ImageScaler will be documented in this file.
 
+## [0.7.4] - 2026-04-15
+
+* Refactoring, fixes, code cleaning
+* 9f7b0fe - Package is compatible with PHP>=7.4
+
 ## [0.7.3] - 2024-05-27
 
 * Added support for GIF images, even animated
