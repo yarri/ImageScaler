@@ -5,6 +5,15 @@ ImageScaler
 
 Handy tool for image resizing. Produces well optimized images for web.
 
+Supported input and output formats: **JPEG, PNG, GIF** (including animated), **WebP, AVIF, HEIC**.
+
+Requirements
+------------
+
+* PHP >= 7.4
+* ext-imagick >= 3.4
+* pngquant (optional, required only for `PngquantOptimizer` filter)
+
 Basic Usage
 -----------
 
@@ -29,140 +38,152 @@ Basic Usage
     $scaler_out->getImageWidth(); // 300
     $scaler_out->getImageHeight(); // 169
 
+EXIF orientation is detected automatically for JPEG images. The image is rotated accordingly so that the output is always correctly oriented.
+
 Scaling options
 ---------------
 
-There are plenty of options in method scaleTo(). Some of them are against each other. So they should not be used together.
+There are plenty of options in method scaleTo(). Some of them are mutually exclusive and should not be used together.
 
-    $scaler->scaleTo($width,$height,[
-      "orientation" => 0, // automatically detected 
+    $scaler->scaleTo($width, $height, [
+      "orientation" => 0, // automatically detected from EXIF; 0, 1, 2 or 3 (i.e. 0, 90, 180, 270 degrees clockwise)
 
-      // this is the source area on the original image
+      // source crop area within the original image
       "x" => 0,
       "y" => 0,
       "width" => $image_width,
       "height" => $image_height,
 
+      // keep_aspect and crop are mutually exclusive
       "keep_aspect" => false,
-
-      "crop" => null, // null, "auto", "top", "bottom"
+      "crop" => null, // null, true/"auto", "top", "bottom"
 
       "strip_meta_data" => true,
-      "sharpen_image" => null, // true, false, null (auto)
+      "sharpen_image" => null, // true, false, null (auto: sharpens when downscaling by more than 20%)
       "compression_quality" => 85,
       "auto_convert_cmyk_to_rgb" => true,
 
-      "output_format" => "jpeg", // "jpeg", "png"
+      "output_format" => "jpeg", // "jpeg", "png", "gif", "webp", "avif", "heic"
 
-      "background_color" => "#ffffff", // by default it is "transparent" for png images
+      "background_color" => "#ffffff", // defaults to "transparent" for png, gif, webp and avif
     ]);
 
 Typical usages
 --------------
 
-    // Scale image to 200px width.
+    // Scale image to 200px width, preserve aspect ratio.
     $scaler->scaleTo(200);
 
-    // Scale image to 200px height.
-    $scaler->scaleTo(null,200);
+    // Scale image to 200px height, preserve aspect ratio.
+    $scaler->scaleTo(null, 200);
 
-    // Scale image to size 200x200.
-    // Original image will be inscribed into 200x200 box.
-    // There will be no aspect ratio distortion,
-    // but rather some parts of the output image may be padded with the background_color.
-    $scaler->scaleTo(200,200,["background_color" => "#ffffff"]);
+    // Scale image to fit into a 200x200 box.
+    // Aspect ratio is preserved; any remaining space is filled with background_color.
+    $scaler->scaleTo(200, 200, ["background_color" => "#ffffff"]);
 
-    // Transform original image into max 200px width and max 200px height
-    // so either the final width or the final height may be lower than 200px.
-    $scaler->scaleTo(200,200,["keep_aspect" => true]);
+    // Scale image to fit within 200x200.
+    // The output may be smaller than 200x200 in one dimension.
+    $scaler->scaleTo(200, 200, ["keep_aspect" => true]);
 
-    // Transform and crop the original image into 200x200 box.
-    $scaler->scaleTo(200,200,["crop" => true]);
+    // Scale and crop the image to exactly 200x200.
+    // The crop is centred.
+    $scaler->scaleTo(200, 200, ["crop" => true]);
 
-    // Transform and crop the original image into 200x200 box
-    // and preserve the top part of the image.
-    // This is a great option e.g. for magazine or book covers.
-    $scaler->scaleTo(200,200,["crop" => "top"]);
+    // Scale and crop to 200x200, preserving the top part of the image.
+    // Great for portrait photos, magazine covers, etc.
+    $scaler->scaleTo(200, 200, ["crop" => "top"]);
+
+    // Scale and crop to 200x200, preserving the bottom part of the image.
+    $scaler->scaleTo(200, 200, ["crop" => "bottom"]);
+
+Format conversion
+-----------------
+
+The output format can be changed independently of the input format. To convert a JPEG to WebP:
+
+    $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
+    $scaler->scaleTo(800, null, ["output_format" => "webp"]);
+    $scaler->saveTo("/path/to/output_image.webp");
+
+Any combination of supported input and output formats is accepted.
 
 Filters
 -------
 
-Image processing can be affected by the use of filters. There are two types of filters.
+Image processing can be extended with filters. There are two types of filters.
 
 * **After scale filters**<br>
-  These filters are executed right after the scaling. The Imagick object is passed to them.<br>
-  After scaling filter must be an instance of *Pupiq\ImageScaler\AfterScaleFilter*
+  Executed right after scaling. The `Imagick` object is passed to them.<br>
+  Must be an instance of `Pupiq\ImageScaler\AfterScaleFilter`.
 * **After save filters**<br>
-  These filters are executed right after the saving image to to the output file. The filename is passed to them.<br>
-  After save filters must be an instance of *Pupiq\ImageScaler\AfterSaveFilter*
+  Executed right after the image is saved to the output file. The filename is passed to them.<br>
+  Must be an instance of `Pupiq\ImageScaler\AfterSaveFilter`.
 
-In both types of filter, details about the desired transformation are also passed to them.
+In both types the scaling options array is also passed to the filter.
 
-This package comes with several filters that can be used instantly.
+This package comes with several built-in filters.
 
 #### Grayscale filter
 
-Grayscale filter converts the currently processed image to grayscale. It is an after scale filter.
+Converts the processed image to grayscale. It is an after scale filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
     $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\GrayscaleFilter());
 
-    $scaler->scaleTo(300,300);
+    $scaler->scaleTo(300, 300);
     $scaler->saveTo("/path/to/output_image.jpg"); // grayscale
 
 #### Pngquant Optimizer filter
 
-For png images there is Pngquant Optimizer filter. It can significantly reduce size of the final PNG image. It is required that the binary pngquant is installed in the system.
-
-Pngquant Optimizer filter is an after save filter.
+Significantly reduces the file size of PNG images using the [pngquant](https://pngquant.org/) binary. It is an after save filter and has no effect on non-PNG output formats.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.png");
     $scaler->appendAfterSaveFilter(new Pupiq\ImageScaler\PngquantOptimizer([
-      "pngquant_binary" => "/usr/bin/pngquant",
-      "quality_range" => "70-90"
+      "pngquant_binary" => "/usr/bin/pngquant", // default: "pngquant"
+      "quality_range" => "70-90"                // default: "70-90"
     ]));
 
-    $scaler->scaleTo(300,300);
+    $scaler->scaleTo(300, 300);
     $scaler->saveTo("/path/to/output_image.png");
-
-For jpeg images, this filter simply does nothing.
 
 #### Watermark filter
 
-This filter places the given watermark into the currently processed image.
+Places a watermark image over the processed image. It is an after scale filter.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
-    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermak_image.png",[
-      "opacity" => 50, // 50%
-      "position" => "center", // "center", "left-top" "left-bottom", "right-top", "right-bottom"
-    ]);
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermark_image.png", [
+      "opacity" => 50,          // percentage, default: 50
+      "position" => "center",   // "center", "left-top", "left-bottom", "right-top", "right-bottom"; default: "center"
+    ]));
 
-    $scaler->scaleTo(300,300);
-    $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked image
+    $scaler->scaleTo(300, 300);
+    $scaler->saveTo("/path/to/output_image.jpg"); // watermarked image
 
-Of course, the filters can be combined. They are processed in the given order.
+#### Combining filters
+
+Filters can be combined and are applied in the order they were added.
 
     $scaler = new Pupiq\ImageScaler("/path/to/image.jpg");
 
-    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermak_image.png"));
+    $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\WatermarkFilter("/path/to/watermark_image.png"));
     $scaler->appendAfterScaleFilter(new Pupiq\ImageScaler\GrayscaleFilter());
 
-    $scaler->scaleTo(300,300);
-    $scaler->saveTo("/path/to/output_image.jpeg"); // watermaked and grayscaled image
+    $scaler->scaleTo(300, 300);
+    $scaler->saveTo("/path/to/output_image.jpg"); // watermarked and grayscaled
 
 Installation
 ------------
 
-Just use the Composer:
+Use the Composer:
 
     composer require pupiq/image-scaler
 
 Testing
 -------
 
-Install required dependencies for development:
+Install required dependencies:
 
-    composer update --dev
+    composer update
 
 Run tests:
 
