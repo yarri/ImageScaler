@@ -333,17 +333,8 @@ class ImageScaler {
 
 		$filename = $this->getFileName();
 		
-		$image_ar = $this->_getimagesize($filename);
-
-		if(!$image_ar){
-			throw new \Exception("Pupiq\ImageScaler: file is not image ($filename)");
-		}
-
-		$src_width = $image_ar[0];
-		$src_height = $image_ar[1];
-
-		// sudo apt-get install php-imagick
-		//myAssert(class_exists("Imagick"));
+		$src_width = $this->getImageWidth(0);
+		$src_height = $this->getImageHeight(0);
 
 		// Animated images
 		$input_format = isset(static::$FORMATS[$this->getMimeType()]) ? static::$FORMATS[$this->getMimeType()] : null;
@@ -379,7 +370,6 @@ class ImageScaler {
 
 		if($orientation>0){
 			$imagick->rotateImage($background_pixel,$orientation * 90);
-			//$background->rotateImage($background_pixel,$orientation * 90);
 		}
 
 		if($options["auto_convert_cmyk_to_rgb"] && $imagick->getImageColorspace()==Imagick::COLORSPACE_CMYK){
