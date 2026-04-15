@@ -215,15 +215,15 @@ class ImageScaler {
 		$mime_type = $this->getMimeType();
 
 		$options += array(
-			// odkud z originalu budeme rezat
+			// source crop area within the original image
 			"x" => 0,
 			"y" => 0,
 			"width" => $this->getImageWidth($orientation),
 			"height" => $this->getImageHeight($orientation),
 
-			// keep_aspect a crop se vylycuji - nema cenu nastavat obe na true
+			// keep_aspect and crop are mutually exclusive - there is no point in setting both to true
 			"keep_aspect" => false,
-			"crop" => null, // pokud bude "auto" (nebo "top", "bottom"), prepise tyto hodnoty v $options: x,y,width,height
+			"crop" => null, // if set to "auto" (or "top", "bottom"), overwrites these values in $options: x,y,width,height
 
 			"strip_meta_data" => true,
 			"sharpen_image" => null, // true, false, null (auto)
@@ -276,7 +276,7 @@ class ImageScaler {
 
 			$x = $y = 0;
 
-			// pozadovany obrazek je sirsi
+			// the desired image is wider than the source
 			if($wished_ratio>$current_ratio){
 				$crop_height = floor($image_height * ($current_ratio / $wished_ratio));
 
@@ -291,7 +291,7 @@ class ImageScaler {
 				}
 			}
 
-			// obrazek je vyssi
+			// the desired image is taller than the source
 			if($wished_ratio<$current_ratio){
 				$crop_width = floor($image_width * ($wished_ratio / $current_ratio));
 				$x = floor((($image_width - $crop_width) / 2) - 1);
@@ -308,8 +308,8 @@ class ImageScaler {
 		}
 
 		if(!isset($options["sharpen_image"])){
-			// automaticke urceni toho, zda se bude ostrit
-			// pokud se zmensuje o vice nez 20% v obou rozmerech -> ostri se
+			// automatically determine whether to sharpen
+			// if downscaling by more than 20% in both dimensions -> sharpen
 			$threshold_percent = 20;
 			$options["sharpen_image"] = 
 				$width<=(($options["width"] / 100.0) * (100.0 - $threshold_percent)) &&
@@ -366,20 +366,20 @@ class ImageScaler {
 		}
 
 		if($options["auto_convert_cmyk_to_rgb"] && $imagick->getImageColorspace()==Imagick::COLORSPACE_CMYK){
-			// Info o ICC profilech:
+			// ICC profile info:
 			// http://www.pdynet.net/clanky/imagick-prevod-palety-cmyk-na-rgb-v-php.html
 
-			if(method_exists($imagick,'getImageProfiles')){ // starsi verze image magicku toto nemaji
-				$profiles = $imagick->getImageProfiles('*', false); // Nacteni profilu v obrazku.
+			if(method_exists($imagick,'getImageProfiles')){ // older versions of ImageMagick do not have this
+				$profiles = $imagick->getImageProfiles('*', false); // load profiles embedded in the image
 				if(!in_array("icc",$profiles)){
-					# CMYK obrazek nema pripojeny CMYK profil. Pouzijeme nejaky standardni
+					# CMYK image has no embedded CMYK profile - use a standard one
 					$icc_cmyk = \Files::GetFileContent(__DIR__.'/icc_profiles/USWebCoatedSWOP.icc');
 					$imagick->profileImage('icc', $icc_cmyk);
 				}
 			}
 
-			// Zmena barevne palety, CMYK -> SRGB.
-			// Je treba pripojit jeste RGB profil
+			// Color space conversion, CMYK -> sRGB.
+			// An RGB profile needs to be attached as well
 			$icc_rgb = \Files::GetFileContent(__DIR__.'/icc_profiles/sRGB_v4_ICC_preference.icc');
 			$imagick->profileImage('icc', $icc_rgb);
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
@@ -396,14 +396,14 @@ class ImageScaler {
 		}
 		$background->setImageFormat($options["output_format"]); // "jpeg", "png", "webp", "avif", "heic"
 
-		// neni treba delat, pokud se kopiruje cely obrazek...
+		// not necessary if the entire image is being copied...
 		if($options["x"]!=0 || $options["y"]!=0 || $options["width"]!=$this->getImageWidth($orientation) || $options["height"]!=$this->getImageHeight($orientation)){
 			$imagick->cropImage($options["width"],$options["height"],$options["x"],$options["y"]);
 		}
 
 		$bestfit = false;
 		if(abs(($width / $height) - ($imagick->getImageWidth() / $imagick->getImageHeight())) > 0.05){
-			// Pokud je pomer stran prilis rozdilny, zapneme $bestfit
+			// If the aspect ratio differs too much, enable $bestfit
 			$bestfit = true;
 		}
 		$imagick->scaleImage($width,$height,$bestfit);
@@ -426,7 +426,7 @@ class ImageScaler {
 			$background->setImageCompression(Imagick::COMPRESSION_JPEG);
 			$background->setImageCompressionQuality($options["compression_quality"]);
 			$background->setInterlaceScheme(Imagick::INTERLACE_JPEG); // progressive jpeg
-			// TODO: Pry neni vhodne pouzivat progressive scan pro obrazky mensi nez 10kb
+			// TODO: Apparently progressive scan is not suitable for images smaller than 10kb
 		}
 
 		if($options["output_format"]=="webp"){

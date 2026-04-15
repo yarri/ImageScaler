@@ -21,7 +21,7 @@ class PngquantOptimizer extends AfterSaveFilter {
 			return;
 		}
 		$filename_optimized = \Files::GetTempFilename("pngquant_optimizer_");
-		// prepinac --skip-if-larger nefungoval dobre na img.dumlatek.cz (nic se neulozilo a vratila se chyba 98)
+		// the --skip-if-larger switch did not work well on img.dumlatek.cz (nothing was saved and error 98 was returned)
 		$cmd = escapeshellarg($this->pngquant_binary)                                                                                                                                                                                                  
 			. " --quality " . escapeshellarg($this->quality_range)                                                                                                                                                                                  
 			. " --force " . escapeshellarg($filename)                                                                                                                                                                                                 
