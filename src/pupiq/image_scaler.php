@@ -308,18 +308,6 @@ class ImageScaler {
 
 			unset($options["crop"]);
 
-			//$options["x"] = 0;
-			//$options["y"] = 504;
-
-			/*
-			Header("Content-Type: text/plain");
-			echo "\n\n\n";
-			var_dump("$width x $height");
-			var_dump("$image_width x $image_height");
-			var_dump($options);
-			exit;// */
-
-
 			return $this->prepareScalingData($width,$height,$options);
 		}
 
