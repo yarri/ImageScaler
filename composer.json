@@ -1,7 +1,7 @@
 {
         "name": "pupiq/image-scaler",
         "type": "library",
-        "description": "Handy tool for image resizing. Produces well optimized images for web.",
+        "description": "PHP library for image resizing, cropping and format conversion. Supports JPEG, PNG, animated GIF, WebP, AVIF and HEIC.",
         "keywords": ["image","resize","scale","watermark"],
         "homepage": "https://github.com/yarri/ImageScaler",
         "license": ["MIT"],
