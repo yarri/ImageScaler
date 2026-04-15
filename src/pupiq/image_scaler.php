@@ -338,7 +338,7 @@ class ImageScaler {
 	function scaleTo($width = null,$height = null,$options = array()){
 		list($width,$height,$options) = $this->prepareScalingData($width,$height,$options);
 
-		$orientation = $this->getOrientation();
+		$orientation = $options["orientation"];
 
 		$this->_Imagick = null;
 		$this->_Options = $options;
