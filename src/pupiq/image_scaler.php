@@ -492,11 +492,11 @@ class ImageScaler {
 		return array($width,$height,$mime_type);
 	}
 
-	function _isAnimated(){
+	protected function _isAnimated(){
 		return \GifFrameExtractor\GifFrameExtractor::isAnimatedGif($this->_FileName);
 	}
 
-	function _extractFrames(){
+	protected function _extractFrames(){
 		$gfe = new \GifFrameExtractor\GifFrameExtractor();
 		$frames = $gfe->extract($this->_FileName);
 		$out = [];

@@ -1,4 +1,15 @@
 <?php
+class TestingImageScaler extends Pupiq\ImageScaler {
+
+	function isAnimated(){
+		return $this->_isAnimated();
+	}
+
+	function extractFrames(){
+		return $this->_extractFrames();
+	}
+}
+
 class TcGif extends TcBase {
 
 	function test_transparency(){
@@ -61,30 +72,30 @@ class TcGif extends TcBase {
 		$outfile = Files::GetTempFilename();
 		$scaler->saveTo($outfile);
 
-		$scaler_out = new Pupiq\ImageScaler($outfile);
+		$scaler_out = new TestingImageScaler($outfile);
 		$this->assertEquals("image/gif",$scaler_out->getMimeType());
 		$this->assertEquals(0,$scaler_out->getOrientation());
 		$this->assertEquals(100,$scaler_out->getImageWidth());
 		$this->assertEquals(100,$scaler_out->getImageHeight());
-		$this->assertTrue($scaler_out->_isAnimated());
+		$this->assertTrue($scaler_out->isAnimated());
 
 		unlink($outfile);
 	}
 
 	function test__isAnimated(){
-		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/animation.gif");
-		$this->assertEquals(true,$scaler->_isAnimated());
+		$scaler = new TestingImageScaler(__DIR__ . "/images/animation.gif");
+		$this->assertEquals(true,$scaler->isAnimated());
 
-		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.gif");
-		$this->assertEquals(false,$scaler->_isAnimated());
+		$scaler = new TestingImageScaler(__DIR__ . "/images/dungeon_master.gif");
+		$this->assertEquals(false,$scaler->isAnimated());
 
-		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/dungeon_master.png");
-		$this->assertEquals(false,$scaler->_isAnimated());
+		$scaler = new TestingImageScaler(__DIR__ . "/images/dungeon_master.png");
+		$this->assertEquals(false,$scaler->isAnimated());
 	}
 
 	function test__extractFrames(){
-		$scaler = new Pupiq\ImageScaler(__DIR__ . "/images/animation.gif");
-		$frames = $scaler->_extractFrames();
+		$scaler = new TestingImageScaler(__DIR__ . "/images/animation.gif");
+		$frames = $scaler->extractFrames();
 		$this->assertEquals(3,sizeof($frames));
 
 		$this->assertEquals(0.6,$frames[0]->getDuration());
