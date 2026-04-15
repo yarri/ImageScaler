@@ -333,9 +333,6 @@ class ImageScaler {
 
 		$filename = $this->getFileName();
 		
-		$src_width = $this->getImageWidth(0);
-		$src_height = $this->getImageHeight(0);
-
 		// Animated images
 		$input_format = isset(static::$FORMATS[$this->getMimeType()]) ? static::$FORMATS[$this->getMimeType()] : null;
 		$output_format = $options["output_format"];
@@ -387,8 +384,8 @@ class ImageScaler {
 
 			// Zmena barevne palety, CMYK -> SRGB.
 			// Je treba pripojit jeste RGB profil
-      $icc_rgb = \Files::GetFileContent(__DIR__.'/icc_profiles/sRGB_v4_ICC_preference.icc');
-      $imagick->profileImage('icc', $icc_rgb);
+			$icc_rgb = \Files::GetFileContent(__DIR__.'/icc_profiles/sRGB_v4_ICC_preference.icc');
+			$imagick->profileImage('icc', $icc_rgb);
 			$imagick->setImageColorspace(Imagick::COLORSPACE_SRGB);
 		}
 
